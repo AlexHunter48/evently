@@ -44,7 +44,7 @@ exports.newUser = async (req, res) => {
             .json({ message: "Error creating user", error });
     }
 };
-const updateUser = async (req, res) => {
+exports.updateUser = async (req, res) => {
     try {
         const {phoneNumber, username } = req.body;
         const update = await userModel.findByIdAndUpdate(req.params.id, { phoneNumber, username }, { new: true });
@@ -59,7 +59,7 @@ const updateUser = async (req, res) => {
 
 };
 
-const deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res) => {
     try {
         const deleteUser = await userModel.findByIdAndDelete(req.params.id);
         return res
