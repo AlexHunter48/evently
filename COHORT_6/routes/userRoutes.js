@@ -4,7 +4,7 @@ const {
     getOneUser , 
     newUser,
     updateUser,
-    deleteUser
+    deleteUser,
 } = require('../controller/userController');
 
 const router = express.Router();
