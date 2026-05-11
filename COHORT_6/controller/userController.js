@@ -46,7 +46,7 @@ exports.newUser = async (req, res) => {
 };
 exports.updateUser = async (req, res) => {
     try {
-        const {phoneNumber, username } = req.body;
+        const {phoneNumber, username, email } = req.body;
         const update = await userModel.findByIdAndUpdate(req.params.id, { phoneNumber, username, email }, { new: true });
         return res
             .status(200)
@@ -56,6 +56,7 @@ exports.updateUser = async (req, res) => {
             .status(500)
             .json({ message: "Error updating user", error });
     }
+};
 
 };
 
