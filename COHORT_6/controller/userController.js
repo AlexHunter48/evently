@@ -58,8 +58,6 @@ exports.updateUser = async (req, res) => {
     }
 };
 
-};
-
 exports.deleteUser = async (req, res) => {
     try {
         const deleteUser = await userModel.findByIdAndDelete(req.params.id);
