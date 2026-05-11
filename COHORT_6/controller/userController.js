@@ -1,5 +1,5 @@
 const userModel = require('../model/userModel');
-
+// CRUD CREATE, READ, UPDATE, DELETE
 
 exports.getAllUsers = async (req, res) => {
     try {
@@ -43,4 +43,39 @@ exports.newUser = async (req, res) => {
             .status(500)
             .json({ message: "Error creating user", error });
     }
+};
+const updateUser = async (req, res) => {
+    try {
+        const {phoneNumber, username } = req.body;
+        const update = await userModel.findByIdAndUpdate(req.params.id, { phoneNumber, username }, { new: true });
+        return res
+            .status(200)
+            .json({ message: "User updated successfully", data: update });
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ message: "Error updating user", error });
+    }
+
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const deleteUser = await userModel.findByIdAndDelete(req.params.id);
+        return res
+            .status(200)
+            .json({ message: "User deleted successfully", data: deleteUser });
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ message: "Error deleting user", error });
+    }
+}
+
+module.exports = {
+    getAllUsers,
+    getOneUser,
+    newUser,
+    updateUser,
+    deleteUser,
 };
