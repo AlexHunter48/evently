@@ -1,0 +1,411 @@
+
+import Event from "../models/eventModel.js"
+
+import User from "../models/userModel.js";
+
+export const createEvent = async (req, res) => {
+    try {
+      const  organizerId = req.user._id;
+ const {
+  eventType,
+  title,
+  description,
+  category,
+  location,
+  capacity,
+  ticketPrice,
+  date,
+  time,
+  bannerImage
+ } = req.body;
+
+const user = await User.findById(organizerId);
+
+if (!user) {
+  return res.status(404).json({
+    message: "User not found"
+  });
+}
+
+if (user.role !== "organizer") {
+  return res.status(403).json({
+  message:  "Only organizers can create events"
+  });
+}
+
+
+if (
+  !organizerId ||
+  !title ||
+  !description ||
+  !category ||
+  !location ||
+  !capacity ||
+  !date ||
+  !time ||
+  !bannerImage
+) {
+  return res.status(400).json({
+    message: "All required fields must be provided"
+  });
+}
+
+if (eventType === "Paid" && (!ticketPrice || ticketPrice <= 0)) {
+  return res.status(400).json({
+    message: "Paid events must have a valid ticket price"
+  });
+}
+
+const newEvent = await Event.create({
+  organizerId,
+  eventType,
+  title,
+  description,
+  category,
+  location,
+  capacity,
+  ticketPrice,
+  date,
+  time,
+  bannerImage
+});
+
+res.status(201).json({
+  message: "Event created successfully",
+  event: newEvent
+});
+
+  } catch (error) {
+console.log("Error creating event:", error.message);
+
+res.status(500).json({
+  message: error.message
+});
+    }
+};
+
+
+export const getAllEvents = async (req, res) => {
+
+try {
+
+const {
+  search,
+  category,
+  location,
+  eventType,
+  status
+} = req.query;
+
+const filter = {};
+
+if (search) {
+  filter.$text = {
+    $search: search
+  };
+}
+
+if (category) {
+  filter.category = category;
+}
+
+if (location) {
+  filter.location = location;
+}
+
+if (eventType) {
+  filter.eventType = eventType;
+}
+
+if (status) {
+  filter.status = status;
+}
+
+const events = await Event.find(filter)
+  .sort({ createdAt: -1 });
+
+res.status(200).json({
+  count: events.length,
+  events
+});
+
+} catch (error) {
+
+console.log("Error fetching events:", error);
+
+res.status(500).json({
+  message: error.message
+});
+
+}
+
+};
+
+
+export const getSingleEvent = async (req, res) => {
+    try {
+const { id } = req.params;
+
+const event = await Event.findById(id);
+
+if (!event) { 
+    return res.status(404).json({
+        message: "Event not found"
+    });
+}
+res.status(200).json(event);
+
+    } catch (error) {
+console.log("Error fetching event:", error);
+
+res.status(500).json({
+    message: error.message
+});
+
+    }
+};
+
+export const updateEvent = async (req, res) => {
+
+try {
+
+const { id } = req.params;
+
+const updates = Object.keys(req.body);
+
+const allowedUpdates = [
+  "title",
+  "description",
+  "category",
+  "location",
+  "capacity",
+  "ticketPrice",
+  "date",
+  "time",
+  "bannerImage"
+];
+
+const isValidOperation = updates.every(
+  (update) => allowedUpdates.includes(update)
+);
+
+if (!isValidOperation) {
+  return res.status(400).json({
+    message: "Invalid update field"
+  });
+}
+
+const updatedEvent = await Event.findByIdAndUpdate(
+  id,
+  req.body,
+  {
+    new: true,
+    runValidators: true
+  }
+);
+
+if (!updatedEvent) {
+  return res.status(404).json({
+    message: "Event not found"
+  });
+}
+
+res.status(200).json({
+  message: "Event updated successfully",
+  event: updatedEvent
+});
+
+} catch (error) {
+
+console.log("Error updating event:", error);
+
+res.status(500).json({
+  message: error.message
+});
+
+
+}
+
+};
+
+export const deleteEvent = async (req, res) => {
+
+try {
+
+const { id } = req.params;
+
+const deletedEvent = await Event.findByIdAndDelete(id);
+
+if (!deletedEvent) {
+  return res.status(404).json({
+    message: "Event not found"
+  });
+}
+
+res.status(200).json({
+  message: "Event deleted successfully"
+});
+
+} catch (error) {
+
+console.log("Error deleting event:", error);
+
+res.status(500).json({
+  message: error.message
+});
+
+}
+};
+
+export const getOrganizerEvents = async (req, res) => {
+
+try {
+
+const { organizerId } = req.params;
+
+const events = await Event.find({
+  organizerId
+}).sort({
+  createdAt: -1
+});
+
+res.status(200).json({
+  count: events.length,
+  events
+});
+
+} catch (error) {
+
+console.log("Error fetching organizer events:", error);
+
+res.status(500).json({
+  message: error.message
+});
+
+}
+
+};
+
+
+export const saveEvent = async (req, res) => {
+
+  try {
+
+    const { userId, eventId } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+
+if (user.role !== "guest") {
+  return res.status(403).json({
+    message: "Only guests can save events"
+  });
+}
+
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      return res.status(404).json({
+        message: "Event not found"
+      });
+    }
+
+    if (user.savedEvents.includes(eventId)) {
+      return res.status(400).json({
+        message: "Event already saved"
+      });
+    }
+
+    user.savedEvents.push(eventId);
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Event saved successfully",
+      savedEvents: user.savedEvents
+    });
+
+  } catch (error) {
+
+    console.log("Error saving event:", error);
+
+    res.status(500).json({
+      message: error.message
+    });
+
+  }
+
+};
+
+export const unsaveEvent = async (req, res) => {
+
+  try {
+
+    const { userId, eventId } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+
+    user.savedEvents = user.savedEvents.filter(
+      id => id.toString() !== eventId
+    );
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Event unsaved successfully"
+    });
+
+  } catch (error) {
+
+    console.log("Error removing saved event:", error);
+
+    res.status(500).json({
+      message: error.message
+    });
+
+  }
+
+};
+
+export const getSavedEvents = async (req, res) => {
+
+  try {
+
+    const { userId } = req.params;
+
+    const user = await User.findById(userId)
+      .populate("savedEvents");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+
+    res.status(200).json({
+      count: user.savedEvents.length,
+      savedEvents: user.savedEvents
+    });
+
+  } catch (error) {
+
+    console.log("Error fetching saved events:", error);
+
+    res.status(500).json({
+      message: error.message
+    });
+
+  }
+
+};
