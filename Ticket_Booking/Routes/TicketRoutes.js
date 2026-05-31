@@ -8,7 +8,6 @@ const {
   cancelTicket,
 } = require('../controllers/ticketController');
 
-// All routes below require the user to be logged in (protect middleware)
 
 // POST /api/tickets/buy          → buy a ticket
 router.post('/buy', protect, buyTicket);
@@ -16,7 +15,7 @@ router.post('/buy', protect, buyTicket);
 // GET  /api/tickets/my-tickets   → get all my tickets
 router.get('/my-tickets', protect, getMyTickets);
 
-// GET  /api/tickets/:ticketId    → get one ticket by ticketId e.g. TKT-2026-A3F9KZ
+// GET  /api/tickets/:ticketId    → get one ticket by ticketId (only if it belongs to the user)
 router.get('/:ticketId', protect, getSingleTicket);
 
 // PATCH /api/tickets/:ticketId/cancel  → cancel a ticket

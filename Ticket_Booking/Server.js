@@ -6,29 +6,23 @@ dotenv.config();
 
 const app = express();
 
-// ── Middleware ────────────────────────────────────────────────
-app.use(express.json()); // parse incoming JSON requests
+app.use(express.json());
 
-// ── Routes ───────────────────────────────────────────────────
 app.use('/api/tickets', require('./routes/ticketRoutes'));
 
-// ── Health Check ─────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({ message: 'Ticketing & Booking Module is running' });
 });
 
-// ── 404 Handler ──────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// ── Global Error Handler ──────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('Server Error:', err.message);
   res.status(500).json({ message: 'Internal server error' });
 });
 
-// ── Connect to MongoDB & Start Server ────────────────────────
 const PORT = process.env.PORT || 3000;
 
 mongoose

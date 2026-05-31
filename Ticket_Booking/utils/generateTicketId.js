@@ -1,5 +1,4 @@
-// Generates a unique ticket ID
-// Example output: TKT-2026-A3F9KZ
+// Generates a unique ticket ID in the format: TKT-2024-ABC123
 
 function generateTicketId() {
   const year = new Date().getFullYear();

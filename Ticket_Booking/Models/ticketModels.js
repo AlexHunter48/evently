@@ -8,21 +8,18 @@ const ticketSchema = new mongoose.Schema(
       unique: true,
     },
 
-    // Reference to the user who bought this ticket
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
 
-    // Reference to the event this ticket is for
     eventId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Event',
       required: true,
     },
 
-    // Ticket status
     status: {
       type: String,
       enum: ['active', 'used', 'cancelled'],
@@ -40,14 +37,13 @@ const ticketSchema = new mongoose.Schema(
       default: Date.now,
     },
 
-    // QR code will be added by Zomzom (Module 5) after ticket is created
     qrCode: {
       type: String,
       default: null,
     },
   },
   {
-    timestamps: true, // adds createdAt and updatedAt automatically
+    timestamps: true, 
   }
 );
 
