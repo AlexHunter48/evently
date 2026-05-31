@@ -6,6 +6,8 @@ import authRoute from "./src/routes/authRoute.js"
 
 import UserRouthe from "./src/routes/userRoute.js"
 
+import orderRoute from "./src/routes/orderRoute.js";
+
 import connectDB from "./src/config/db.js"
 
 import dotenv from "dotenv"
@@ -17,20 +19,20 @@ const PORT=process.env.PORT || 3000
 
 const app = express();
 
-connectDB()
+connectDB();
 
-app.use(express.json())
+app.use(express.json());
 
-app.use(cors())
+app.use(cors());
 
-app.use("/api/auth", authRoute)
+app.use("/api/auth", authRoute);
 
-app.use("/api/user", UserRouthe)
+app.use("/api/user", UserRouthe);
 
-
+app.use("/api/order", orderRoute);
 
 
 app.listen(PORT, ()=>{
 
     console.log(`Server running on port ${PORT}`)
-})
+});
