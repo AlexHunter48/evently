@@ -102,14 +102,13 @@ const getSingleTicket = async (req, res) => {
   try {
     const ticket = await Ticket.findOne({ ticketId: req.params.ticketId })
       .populate('eventId', 'title date time location ticketPrice capacity ticketsSold status')
-      .populate('userId', 'name email');
 
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
 
-
-    if (ticket.userId._id.toString() !== req.user.id) {
+    // Check ownership using userId directly
+    if (ticket.userId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to view this ticket' });
     }
 
