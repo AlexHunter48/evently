@@ -6,8 +6,6 @@ import authRoute from "./src/routes/authRoute.js"
 
 import UserRouthe from "./src/routes/userRoute.js"
 
-import orderRoute from "./src/routes/orderRoute.js";
-
 import connectDB from "./src/config/db.js"
 
 import dotenv from "dotenv"
@@ -27,7 +25,7 @@ app.use(cors());
 
 app.use("/api/auth", authRoute);
 
-app.use("/api/user", UserRouthe);
+app.use("/api/user", UserRouthe)
 
 app.use("/api/order", orderRoute);
 
