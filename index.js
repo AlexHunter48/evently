@@ -36,7 +36,7 @@ app.use("/api/events", eventRoute);
 app.use("/api/tickets", ticketRoute)
 
 
-
+app.get("/test", (req, res) => res.json({ message: "working" }));
 
 app.listen(PORT, ()=>{
 

@@ -1,12 +1,12 @@
-const Ticket = require('../models/ticketModels');
-const User = require('../models/userModels');
-const Event = require('../models/eventModels');
-const generateTicketId = require('../utils/generateTicketId');
+import Ticket from "../models/ticketModel.js";
+import User from "../models/userModel.js";
+import Event from "../models/eventModel.js";
+import generateTicketId from '../utils/generateTicketId.js';
 
 const buyTicket = async (req, res) => {
   try {
     const { eventId } = req.body;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     if (!eventId) {
       return res.status(400).json({ message: 'Event ID is required' });
@@ -20,15 +20,13 @@ const buyTicket = async (req, res) => {
       });
     }
 
-    const event = await Event.findOneAndUpdate(
-      { _id: eventId, $expr: { $lt: ["$ticketsSold", "$capacity"] } },
-      { $inc: { ticketsSold: 1 } },
-      { new: true }
-    );
+    const event = await Event.findById(eventId);
 
     if (!event) {
-      const eventExists = await Event.findById(eventId);
-      if (!eventExists) return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    if (event.status === 'Sold Out') {
       return res.status(400).json({ message: 'Sorry, this event is sold out' });
     }
 
@@ -36,23 +34,21 @@ const buyTicket = async (req, res) => {
       ticketId: generateTicketId(),
       userId,
       eventId,
+      ticketName: event.title,
+      totalNumber: event.capacity,
+      price: event.tickets[0]?.price || 0,
       status: 'active',
-      amountPaid: event.ticketPrice,
+      amountPaid: event.tickets[0]?.price || 0,
       purchasedAt: new Date(),
     });
 
-    if (event.ticketsSold >= event.capacity) {
-      await Event.findByIdAndUpdate(eventId, { status: 'Sold Out' });
-    }
-
     const populatedTicket = await Ticket.findById(ticket._id)
-      .populate('eventId', 'title date time location ticketPrice capacity ticketsSold status')
+      .populate('eventId', 'title date time location capacity status tickets')
       .populate('userId', 'username email');
 
     res.status(201).json({
       message: 'Ticket purchased successfully',
       ticket: populatedTicket,
-      seatsRemaining: event.capacity - event.ticketsSold,
     });
   } catch (error) {
     console.error('buyTicket error:', error.message);
@@ -62,8 +58,8 @@ const buyTicket = async (req, res) => {
 
 const getMyTickets = async (req, res) => {
   try {
-    const tickets = await Ticket.find({ userId: req.user.id })
-      .populate('eventId', 'title date time location ticketPrice capacity ticketsSold status')
+    const tickets = await Ticket.find({ userId: req.user._id })
+      .populate('eventId', 'title date time location capacity status')
       .sort({ purchasedAt: -1 });
 
     if (tickets.length === 0) {
@@ -89,12 +85,12 @@ const getSingleTicket = async (req, res) => {
       return res.status(404).json({ message: 'Ticket not found' });
     }
 
-    if (rawTicket.userId.toString() !== req.user.id) {
+    if (rawTicket.userId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized to view this ticket' });
     }
 
     const ticket = await Ticket.findOne({ ticketId: req.params.ticketId })
-      .populate('eventId', 'title date time location ticketPrice capacity ticketsSold status')
+      .populate('eventId', 'title date time location capacity status')
       .populate('userId', 'username email');
 
     res.status(200).json({ ticket });
@@ -112,7 +108,7 @@ const cancelTicket = async (req, res) => {
       return res.status(404).json({ message: 'Ticket not found' });
     }
 
-    if (ticket.userId.toString() !== req.user.id) {
+    if (ticket.userId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized to cancel this ticket' });
     }
 
@@ -125,10 +121,6 @@ const cancelTicket = async (req, res) => {
     ticket.status = 'cancelled';
     await ticket.save();
 
-    await Event.findByIdAndUpdate(ticket.eventId, {
-      $inc: { ticketsSold: -1 },
-    });
-
     res.status(200).json({
       message: 'Ticket cancelled successfully',
       ticket,
@@ -139,4 +131,4 @@ const cancelTicket = async (req, res) => {
   }
 };
 
-module.exports = { buyTicket, getMyTickets, getSingleTicket, cancelTicket };
+export { buyTicket, getMyTickets, getSingleTicket, cancelTicket };

@@ -1,17 +1,20 @@
-import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
+import express from 'express';
+import verifyToken from '../middleware/authMiddleware.js';
 import {
   buyTicket,
   getMyTickets,
   getSingleTicket,
   cancelTicket,
-} from "../controllers/ticketController.js";
+} from '../controllers/ticketController.js';
 
 const router = express.Router();
 
-router.post("/buy", protect, buyTicket);
-router.get("/my-tickets", protect, getMyTickets);
-router.get("/:ticketId", protect, getSingleTicket);
-router.patch("/:ticketId/cancel", protect, cancelTicket);
+router.post('/buy', verifyToken, buyTicket);
+
+router.get('/my-tickets', verifyToken, getMyTickets);
+
+router.get('/:ticketId', verifyToken, getSingleTicket);
+
+router.patch('/:ticketId/cancel', verifyToken, cancelTicket);
 
 export default router;
