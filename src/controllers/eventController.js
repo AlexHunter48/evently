@@ -13,7 +13,7 @@ export const createEvent = async (req, res) => {
   category,
   location,
   capacity,
-  ticketPrice,
+  tickets,
   date,
   time,
   bannerImage
@@ -56,6 +56,16 @@ if (eventType === "Paid" && (!ticketPrice || ticketPrice <= 0)) {
   });
 }
 
+const totalTickets = tickets.reduce(
+  (sum, tickets) => sum + tickets.quantity, 0
+);
+
+if (totalTickets !== capacity) {
+  return res.status(404).json({
+    message: "Total tickets must be equal to capacity"
+  });
+}
+
 const newEvent = await Event.create({
   organizerId,
   eventType,
@@ -64,7 +74,7 @@ const newEvent = await Event.create({
   category,
   location,
   capacity,
-  ticketPrice,
+  tickets,
   date,
   time,
   bannerImage
@@ -165,97 +175,131 @@ res.status(500).json({
     }
 };
 
+
+
 export const updateEvent = async (req, res) => {
 
-try {
+  try {
 
-const { id } = req.params;
+    const { id } = req.params;
 
-const updates = Object.keys(req.body);
+    const updates = Object.keys(req.body);
 
-const allowedUpdates = [
-  "title",
-  "description",
-  "category",
-  "location",
-  "capacity",
-  "ticketPrice",
-  "date",
-  "time",
-  "bannerImage"
-];
+    const allowedUpdates = [
+      "title",
+      "description",
+      "category",
+      "location",
+      "capacity",
+      "tickets",
+      "date",
+      "time",
+      "bannerImage"
+    ];
 
-const isValidOperation = updates.every(
-  (update) => allowedUpdates.includes(update)
-);
+    const isValidOperation = updates.every(
+      (update) => allowedUpdates.includes(update)
+    );
 
-if (!isValidOperation) {
-  return res.status(400).json({
-    message: "Invalid update field"
-  });
-}
+    if (!isValidOperation) {
+      return res.status(400).json({
+        message: "Invalid update field"
+      });
+    }
 
-const updatedEvent = await Event.findByIdAndUpdate(
-  id,
-  req.body,
-  {
-    new: true,
-    runValidators: true
+    const event = await Event.findById(id);
+
+    if (!event) {
+      return res.status(404).json({
+        message: "Event not found"
+      });
+    }
+
+    if (event.organizerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "You can only update events you created"
+      });
+    }
+if (req.body.tickets || req.capacity) {
+  const event = await Event.findById(id);
+
+  const capacity = req.body.capacity || event.capacity;
+
+  const tickets = req.body.tickets || event.tickets;
+
+  const totalTickets = tickets.reduce(
+    (sum, ticket) => sum + ticket.quantity, 0
+  );
+
+  if (totalTickets !== capacity) {
+    return res.status(404).json({
+      message: "Total tickets must be equal to capacity"
+    });
   }
-);
-
-if (!updatedEvent) {
-  return res.status(404).json({
-    message: "Event not found"
-  });
 }
 
-res.status(200).json({
-  message: "Event updated successfully",
-  event: updatedEvent
-});
+    const updatedEvent = await Event.findByIdAndUpdate(
+      id,
+      req.body,
+      {
+        new: true,
+        runValidators: true
+      }
+    );
 
-} catch (error) {
+    res.status(200).json({
+      message: "Event updated successfully",
+      event: updatedEvent
+    });
 
-console.log("Error updating event:", error);
+  } catch (error) {
 
-res.status(500).json({
-  message: error.message
-});
+    console.log("Error updating event:", error);
 
+    res.status(500).json({
+      message: error.message
+    });
 
-}
+  }
 
 };
 
 export const deleteEvent = async (req, res) => {
+  try {
 
-try {
+    const { id } = req.params;
 
-const { id } = req.params;
+    const event = await Event.findById(id);
 
-const deletedEvent = await Event.findByIdAndDelete(id);
+    if (!event) {
+      return res.status(404).json({
+        message: "Event not found"
+      });
+    }
 
-if (!deletedEvent) {
-  return res.status(404).json({
-    message: "Event not found"
-  });
-}
+    if (event.organizerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "You can only delete events you created"
+      });
+    }
 
-res.status(200).json({
-  message: "Event deleted successfully"
-});
+    await Event.findByIdAndDelete(id);
 
-} catch (error) {
+    res.status(200).json({
+      message: "Event deleted successfully"
+    });
 
-console.log("Error deleting event:", error);
+  } catch (error) {
 
-res.status(500).json({
-  message: error.message
-});
+    console.log("Error deleting event:", error);
 
-}
+    res.status(500).json({
+      message: error.message
+    });
+
+  }
 };
+
 
 export const getOrganizerEvents = async (req, res) => {
 

@@ -53,15 +53,28 @@ capacity: {
    required: true
 },
 
-ticketPrice: {
-   type: Number,
-   default: 0
+tickets: [ {
+   type: {
+   type: String,
+   enum: [ "Standard", "Premium", "VVIP"],
+   required: true
 },
 
-ticketsSold: {
+price: {
    type: Number,
-   default:0
+   required: true
 },
+
+quantity: {
+   type: Number,
+   required: true
+},
+sold: {
+   type: Number,
+   default: 0
+}
+}
+],
 
   date: {
    type: Date,
