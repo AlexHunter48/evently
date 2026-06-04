@@ -1,186 +1,163 @@
-
-import Event from "../models/eventModel.js"
+import Event from "../models/eventModel.js";
 
 import User from "../models/userModel.js";
 
 export const createEvent = async (req, res) => {
-    try {
-      const  organizerId = req.user._id;
- const {
-  eventType,
-  title,
-  description,
-  category,
-  location,
-  capacity,
-  tickets,
-  date,
-  time,
-  bannerImage
- } = req.body;
+  try {
+    const organizerId = req.user._id;
+    const {
+      eventType,
+      title,
+      description,
+      category,
+      location,
+      capacity,
+      tickets,
+      date,
+      time,
+      bannerImage,
+    } = req.body;
 
-const user = await User.findById(organizerId);
+    const user = await User.findById(organizerId);
 
-if (!user) {
-  return res.status(404).json({
-    message: "User not found"
-  });
-}
-
-if (user.role !== "organizer") {
-  return res.status(403).json({
-  message:  "Only organizers can create events"
-  });
-}
-
-
-if (
-  !organizerId ||
-  !title ||
-  !description ||
-  !category ||
-  !location ||
-  !capacity ||
-  !date ||
-  !time ||
-  !bannerImage
-) {
-  return res.status(400).json({
-    message: "All required fields must be provided"
-  });
-}
-
-if (eventType === "Paid" && (!ticketPrice || ticketPrice <= 0)) {
-  return res.status(400).json({
-    message: "Paid events must have a valid ticket price"
-  });
-}
-
-const totalTickets = tickets.reduce(
-  (sum, tickets) => sum + tickets.quantity, 0
-);
-
-if (totalTickets !== capacity) {
-  return res.status(404).json({
-    message: "Total tickets must be equal to capacity"
-  });
-}
-
-const newEvent = await Event.create({
-  organizerId,
-  eventType,
-  title,
-  description,
-  category,
-  location,
-  capacity,
-  tickets,
-  date,
-  time,
-  bannerImage
-});
-
-res.status(201).json({
-  message: "Event created successfully",
-  event: newEvent
-});
-
-  } catch (error) {
-console.log("Error creating event:", error.message);
-
-res.status(500).json({
-  message: error.message
-});
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
-};
 
+    if (user.role !== "organizer") {
+      return res.status(403).json({
+        message: "Only organizers can create events",
+      });
+    }
+
+    if (
+      !organizerId ||
+      !title ||
+      !description ||
+      !category ||
+      !location ||
+      !capacity ||
+      !date ||
+      !time ||
+      !bannerImage
+    ) {
+      return res.status(400).json({
+        message: "All required fields must be provided",
+      });
+    }
+
+    if (eventType === "Paid" && (!tickets.price || tickets.price <= 0)) {
+      return res.status(400).json({
+        message: "Paid events must have a valid ticket price",
+      });
+    }
+
+    const totalTickets = tickets.reduce(
+      (sum, tickets) => sum + tickets.quantity,
+      0,
+    );
+
+    if (totalTickets !== capacity) {
+      return res.status(404).json({
+        message: "Total tickets must be equal to capacity",
+      });
+    }
+
+    const newEvent = await Event.create({
+      organizerId,
+      eventType,
+      title,
+      description,
+      category,
+      location,
+      capacity,
+      tickets,
+      date,
+      time,
+      bannerImage,
+    });
+
+    res.status(201).json({
+      message: "Event created successfully",
+      event: newEvent,
+    });
+  } catch (error) {
+    console.log("Error creating event:", error.message);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 export const getAllEvents = async (req, res) => {
+  try {
+    const { search, category, location, eventType, status } = req.query;
 
-try {
+    const filter = {};
 
-const {
-  search,
-  category,
-  location,
-  eventType,
-  status
-} = req.query;
+    if (search) {
+      filter.$text = {
+        $search: search,
+      };
+    }
 
-const filter = {};
+    if (category) {
+      filter.category = category;
+    }
 
-if (search) {
-  filter.$text = {
-    $search: search
-  };
-}
+    if (location) {
+      filter.location = location;
+    }
 
-if (category) {
-  filter.category = category;
-}
+    if (eventType) {
+      filter.eventType = eventType;
+    }
 
-if (location) {
-  filter.location = location;
-}
+    if (status) {
+      filter.status = status;
+    }
 
-if (eventType) {
-  filter.eventType = eventType;
-}
+    const events = await Event.find(filter).sort({ createdAt: -1 });
 
-if (status) {
-  filter.status = status;
-}
+    res.status(200).json({
+      count: events.length,
+      events,
+    });
+  } catch (error) {
+    console.log("Error fetching events:", error);
 
-const events = await Event.find(filter)
-  .sort({ createdAt: -1 });
-
-res.status(200).json({
-  count: events.length,
-  events
-});
-
-} catch (error) {
-
-console.log("Error fetching events:", error);
-
-res.status(500).json({
-  message: error.message
-});
-
-}
-
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
-
 
 export const getSingleEvent = async (req, res) => {
-    try {
-const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-const event = await Event.findById(id);
+    const event = await Event.findById(id);
 
-if (!event) { 
-    return res.status(404).json({
-        message: "Event not found"
-    });
-}
-res.status(200).json(event);
-
-    } catch (error) {
-console.log("Error fetching event:", error);
-
-res.status(500).json({
-    message: error.message
-});
-
+    if (!event) {
+      return res.status(404).json({
+        message: "Event not found",
+      });
     }
+    res.status(200).json(event);
+  } catch (error) {
+    console.log("Error fetching event:", error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
-
-
 export const updateEvent = async (req, res) => {
-
   try {
-
     const { id } = req.params;
 
     const updates = Object.keys(req.body);
@@ -194,16 +171,16 @@ export const updateEvent = async (req, res) => {
       "tickets",
       "date",
       "time",
-      "bannerImage"
+      "bannerImage",
     ];
 
-    const isValidOperation = updates.every(
-      (update) => allowedUpdates.includes(update)
+    const isValidOperation = updates.every((update) =>
+      allowedUpdates.includes(update),
     );
 
     if (!isValidOperation) {
       return res.status(400).json({
-        message: "Invalid update field"
+        message: "Invalid update field",
       });
     }
 
@@ -211,157 +188,136 @@ export const updateEvent = async (req, res) => {
 
     if (!event) {
       return res.status(404).json({
-        message: "Event not found"
+        message: "Event not found",
       });
     }
 
     if (event.organizerId.toString() !== req.user._id.toString()) {
       return res.status(403).json({
-        message: "You can only update events you created"
+        message: "You can only update events you created",
       });
     }
-if (req.body.tickets || req.capacity) {
-  const event = await Event.findById(id);
+    if (req.body.tickets || req.capacity) {
+      const event = await Event.findById(id);
 
-  const capacity = req.body.capacity || event.capacity;
+      const capacity = req.body.capacity || event.capacity;
 
-  const tickets = req.body.tickets || event.tickets;
+      const tickets = req.body.tickets || event.tickets;
 
-  const totalTickets = tickets.reduce(
-    (sum, ticket) => sum + ticket.quantity, 0
-  );
+      const totalTickets = tickets.reduce(
+        (sum, ticket) => sum + ticket.quantity,
+        0,
+      );
 
-  if (totalTickets !== capacity) {
-    return res.status(404).json({
-      message: "Total tickets must be equal to capacity"
-    });
-  }
-}
-
-    const updatedEvent = await Event.findByIdAndUpdate(
-      id,
-      req.body,
-      {
-        new: true,
-        runValidators: true
+      if (totalTickets !== capacity) {
+        return res.status(404).json({
+          message: "Total tickets must be equal to capacity",
+        });
       }
-    );
+    }
+
+    const updatedEvent = await Event.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     res.status(200).json({
       message: "Event updated successfully",
-      event: updatedEvent
+      event: updatedEvent,
     });
-
   } catch (error) {
-
     console.log("Error updating event:", error);
 
     res.status(500).json({
-      message: error.message
+      message: error.message,
     });
-
   }
-
 };
 
 export const deleteEvent = async (req, res) => {
   try {
-
     const { id } = req.params;
 
     const event = await Event.findById(id);
 
     if (!event) {
       return res.status(404).json({
-        message: "Event not found"
+        message: "Event not found",
       });
     }
 
     if (event.organizerId.toString() !== req.user._id.toString()) {
       return res.status(403).json({
-        message: "You can only delete events you created"
+        message: "You can only delete events you created",
       });
     }
 
     await Event.findByIdAndDelete(id);
 
     res.status(200).json({
-      message: "Event deleted successfully"
+      message: "Event deleted successfully",
     });
-
   } catch (error) {
-
     console.log("Error deleting event:", error);
 
     res.status(500).json({
-      message: error.message
+      message: error.message,
     });
-
   }
 };
 
-
 export const getOrganizerEvents = async (req, res) => {
+  try {
+    const { organizerId } = req.params;
 
-try {
+    const events = await Event.find({
+      organizerId,
+    }).sort({
+      createdAt: -1,
+    });
 
-const { organizerId } = req.params;
+    res.status(200).json({
+      count: events.length,
+      events,
+    });
+  } catch (error) {
+    console.log("Error fetching organizer events:", error);
 
-const events = await Event.find({
-  organizerId
-}).sort({
-  createdAt: -1
-});
-
-res.status(200).json({
-  count: events.length,
-  events
-});
-
-} catch (error) {
-
-console.log("Error fetching organizer events:", error);
-
-res.status(500).json({
-  message: error.message
-});
-
-}
-
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
-
 export const saveEvent = async (req, res) => {
-
   try {
-
     const { userId, eventId } = req.body;
 
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
+        message: "User not found",
       });
     }
 
-if (user.role !== "guest") {
-  return res.status(403).json({
-    message: "Only guests can save events"
-  });
-}
+    if (user.role !== "guest") {
+      return res.status(403).json({
+        message: "Only guests can save events",
+      });
+    }
 
     const event = await Event.findById(eventId);
 
     if (!event) {
       return res.status(404).json({
-        message: "Event not found"
+        message: "Event not found",
       });
     }
 
     if (user.savedEvents.includes(eventId)) {
       return res.status(400).json({
-        message: "Event already saved"
+        message: "Event already saved",
       });
     }
 
@@ -371,85 +327,68 @@ if (user.role !== "guest") {
 
     res.status(200).json({
       message: "Event saved successfully",
-      savedEvents: user.savedEvents
+      savedEvents: user.savedEvents,
     });
-
   } catch (error) {
-
     console.log("Error saving event:", error);
 
     res.status(500).json({
-      message: error.message
+      message: error.message,
     });
-
   }
-
 };
 
 export const unsaveEvent = async (req, res) => {
-
   try {
-
     const { userId, eventId } = req.body;
 
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
+        message: "User not found",
       });
     }
 
     user.savedEvents = user.savedEvents.filter(
-      id => id.toString() !== eventId
+      (id) => id.toString() !== eventId,
     );
 
     await user.save();
 
     res.status(200).json({
-      message: "Event unsaved successfully"
+      message: "Event unsaved successfully",
     });
-
   } catch (error) {
-
     console.log("Error removing saved event:", error);
 
     res.status(500).json({
-      message: error.message
+      message: error.message,
     });
-
   }
-
 };
 
 export const getSavedEvents = async (req, res) => {
-
   try {
-
     const { userId } = req.params;
 
-    const user = await User.findById(userId)
-      .populate("savedEvents");
+    const user = await User.findById(userId).populate("savedEvents");
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
+        message: "User not found",
       });
     }
 
     res.status(200).json({
       count: user.savedEvents.length,
-      savedEvents: user.savedEvents
+      savedEvents: user.savedEvents,
     });
-
   } catch (error) {
-
     console.log("Error fetching saved events:", error);
 
     res.status(500).json({
-      message: error.message
+      message: error.message,
     });
-
   }
-
 };
