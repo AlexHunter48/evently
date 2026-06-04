@@ -1,13 +1,13 @@
 import axios from 'axios';
-import crypto from 'crypto';
 import Order from '../models/orderModel.js';
 import Event from '../models/eventModel.js';
+import paystackService from '../config/paystackService.js';
 
 export const initializePayment = async (req, res)=>{
     try {
-        const { event, name, email, phoneNo, quantity } = req.body;
+        const { event, name, email, phoneNo, tickets, quantity } = req.body;
 
-        if (!name || !email || !phoneNo || !event || !quantity) {
+        if (!name || !email || !phoneNo || !event || !tickets || !quantity) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
@@ -15,7 +15,6 @@ export const initializePayment = async (req, res)=>{
         }
 
         const eventData = await Event.findById(event);
-
         if (!eventData) {
             return res.status(404).json({
                 success: false,
@@ -23,12 +22,19 @@ export const initializePayment = async (req, res)=>{
             });
         }
 
-        const totalPrice = eventData.ticketPrice * quantity;
+        const selectedTicket = eventData.tickets.find(t => t.type === tickets);
 
-       
+        if (!selectedTicket){
+            return res.status(400).json({
+                success: false,
+                message: "Selected ticket type not found for this event"
+            })
+        }
+
+        const totalPrice = selectedTicket.price * quantity;
 
         //Sending request to Paystack
-        const response = await axios.post('https://api.paystack.co/transaction/initialize',{
+        const response = await paystackService.transaction.initialize({
             email,
             amount: totalPrice * 100
         },
@@ -47,7 +53,8 @@ export const initializePayment = async (req, res)=>{
         phoneNo,
         event,
         quantity,
-        price:eventData.ticketPrice,
+        selectedTicket: tickets,
+        price: selectedTicket.price,
         totalPrice,
         reference,
         paymentStatus: "pending"

@@ -8,6 +8,10 @@ import UserRouthe from "./src/routes/userRoute.js"
 
 import connectDB from "./src/config/db.js"
 
+import orderRoute from "./src/routes/orderRoute.js"
+
+import eventRoute from "./src/routes/eventRoute.js"
+
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -28,6 +32,8 @@ app.use("/api/auth", authRoute);
 app.use("/api/user", UserRouthe)
 
 app.use("/api/order", orderRoute);
+
+app.use("/api/event", eventRoute);
 
 
 app.listen(PORT, ()=>{

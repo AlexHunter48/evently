@@ -46,6 +46,15 @@ const orderSchema =  new mongoose.Schema({
         type: String,
         default: ()=> `REF-${uuidv4().split('-')[0].toUpperCase()}`,
         unique: true
+    },
+    ticketId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Ticket",
+        required: true
+    },
+    ticketCode: {
+        type: String,
+        unique: true
     }
 
 
