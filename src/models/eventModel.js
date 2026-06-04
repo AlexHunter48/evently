@@ -2,23 +2,36 @@ import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema({
 
-   organizerId : {
+   organizerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required : true
+    required: true
   },
+
+eventType: {
+   type: String,
+   enum: ["Free", "Paid"],
+   default: "Free"
+},
 
     title: {
        type: String,
-       required : true,
-       trim : true
+       required: true,
+       trim: true
   },
 
+description: {
 
-     category : {
+   type: String,
+   required: true,
+   trim: true
+},
+
+
+     category: {
      type: String,
-     required : true,
-     enum : [
+     required: true,
+     enum: [
       "Music & Nightlife",
       "Tech & Innovation",
       "Business & Networking",
@@ -27,31 +40,77 @@ const eventSchema = new mongoose.Schema({
       "Classes & Workshops",
       "Other"
     ],
-     default : "Other"
+     default: "Other"
 
   },
-  location :{
+  location: {
    type: String,
-   required:true
+   required: true
   },
-  date:{
+  
+capacity: {
+   type: Number,
+   required: true
+},
+
+tickets: [ {
+   type: {
    type: String,
-   required:true
+   enum: [ "Standard", "Premium", "VVIP"],
+   required: true
+},
+
+price: {
+   type: Number,
+   required: true
+},
+
+quantity: {
+   type: Number,
+   required: true
+},
+sold: {
+   type: Number,
+   default: 0
+}
+}
+],
+
+  date: {
+   type: Date,
+   required: true
   },
 
-  time:{
+  time: {
      type: String,
-     required:true
+     required: true
   },
 
-  bannerImage :{
+  bannerImage: {
   type: String,
-  required:true
+  required: true
+  },
+
+  status: {
+   type: String,
+   enum: [
+      "Pending Approval",
+      "Upcoming",
+      "Ongoing",
+      "Completed",
+      "Cancelled",
+      "Sold Out"
+   ],
+   default: "Upcoming"
   }
 
 
-}, { timestamps:true})
+}, { timestamps: true});   
 
+eventSchema.index({ title: "text", description: "text" });
+eventSchema.index({ category: 1 });
+eventSchema.index({ location: 1 });
+eventSchema.index({ date: 1 });
 
 const Event = mongoose.model("Event",eventSchema);
 
