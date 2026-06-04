@@ -2,6 +2,7 @@
 
 import Order from '../models/orderModel.js'
 import { verifyTransaction } from '../services/paystackServices.js'
+import Event from '../models/eventModel.js'
 
 const handleWebhook = async (req, res) => {
     const { event, data } = req.body
@@ -15,18 +16,26 @@ const handleWebhook = async (req, res) => {
                 if (order) {
                     order.paymentStatus = 'completed';
                     order.paidAt = new Date();
-                     await order.save();     
+                     await order.save();
+                     
+                     const eventData = await Event.findById(order.event)
+                     if (eventData.availableTickets >= order.quantity) {
+                        eventData.availableTickets -= order.quantity
+                        await eventData.save()
+                     }
                     
                 }
-                res.status(200).json({ message: 'Webhook handled successfully' })
              
             }
         } catch (error) {
             console.error('Error occurred while handling webhook:', error)
+            res.status(200).json({ message: 'Webhook received' })
+    
         }
     }
-
-    res.status(200).json({ message: 'Webhook received' })
+// ✅ Add return to final response too
+return res.status(200).json({ message: 'Webhook received' })
+    
 }
 
 export {handleWebhook}

@@ -2,7 +2,7 @@
 
 import express from 'express'
 import {handleWebhook} from '../controllers/webhookController.js'
-import {verifyWebhook} from ',,/middleware/paystackMiddleware.js'
+import verifyWebhook from '../middleware/paystackWebhookMiddleware.js'
 
 const router = express.Router()
 
