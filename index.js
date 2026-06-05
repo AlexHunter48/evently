@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 import express from "express"
 
 import cors from "cors"
@@ -8,13 +6,9 @@ import authRoute from "./src/routes/authRoute.js"
 
 import UserRouthe from "./src/routes/userRoute.js"
 
-import eventRoute from "./src/routes/eventRoute.js"
-
 import connectDB from "./src/config/db.js"
 
 import dotenv from "dotenv"
-
-import notificationRoutes from './src/routes/notificationRoutes.js';
 
 dotenv.config()
 
@@ -32,11 +26,6 @@ app.use(cors())
 app.use("/api/auth", authRoute)
 
 app.use("/api/user", UserRouthe)
-
-app.use("/api/events", eventRoute);
-
-app.use('/api/notifications', notificationRoutes);
-
 
 
 

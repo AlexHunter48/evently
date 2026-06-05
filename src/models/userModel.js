@@ -28,18 +28,10 @@ const userSchema = new mongoose.Schema(
     type : String,
     enum :["guest","organizer"],
     default : "guest"
-},
+    }
 
-savedEvents: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Event"
-  }
-]
 
-},
-{ timestamps: true } 
-
+}, { timestamps: true } 
 );
 
 
