@@ -2,6 +2,7 @@ import axios from 'axios';
 import Order from '../models/orderModel.js';
 import Event from '../models/eventModel.js';
 import paystackService from '../config/paystackService.js';
+import crypto from 'crypto';
 
 export const initializePayment = async (req, res)=>{
     try {
@@ -30,20 +31,16 @@ export const initializePayment = async (req, res)=>{
                 message: "Selected ticket type not found for this event"
             })
         }
-
+        const ticketId = selectedTicket._id;
+        const ticketCode = crypto.randomUUID();
         const totalPrice = selectedTicket.price * quantity;
 
         //Sending request to Paystack
         const response = await paystackService.transaction.initialize({
             email,
             amount: totalPrice * 100
-        },
-    {
-        headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-            'Content-Type': 'application/json'
         }
-    });
+);
     
     const { authorization_url, reference } = response.data.data;
 
@@ -57,7 +54,9 @@ export const initializePayment = async (req, res)=>{
         price: selectedTicket.price,
         totalPrice,
         reference,
-        paymentStatus: "pending"
+        paymentStatus: "pending",
+        ticketId,
+        ticketCode
     });
 
     res.status(200).json({
