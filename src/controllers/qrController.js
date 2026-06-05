@@ -2,6 +2,21 @@ import QRCode from "qrcode";
 import Ticket from "../models/ticketModel.js";
 import Order from "../models/orderModel.js";
 
+export const generateQRForTicket = async (ticketId) => {
+  const ticket = await Ticket.findOne({ ticketId });
+  if (!ticket) {
+    throw new Error("Ticket not found");
+  }
+
+  const verificationPayload = JSON.stringify({
+    id: ticket.ticketId,
+    code: ticket._id
+  });
+
+  const qrImageString = await QRCode.toDataURL(verificationPayload);
+  return qrImageString;
+};
+
 export const generateTicketQR = async (req, res) => {
   try {
     const { ticketId } = req.body;
@@ -67,10 +82,15 @@ export const verifyTicketQR = async (req, res) => {
 
     const orderDetails = await Order.findOne({ ticketId: ticket._id });
 
+    if (orderDetails) {
+      orderDetails.status = "used";
+      await orderDetails.save();
+    }
+
     return res.status(200).json({
       success: true,
       message: "Ticket Verified successfully!",
-      attendee: orderDetails ? orderDetails.guestName : "Guest Attendee",
+      attendee: orderDetails ? orderDetails.name : "Guest Attendee",
       ticketType: ticket.ticketName
     });
 
