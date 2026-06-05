@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import express from "express"
 
 import cors from "cors"
@@ -13,6 +15,8 @@ import connectDB from "./src/config/db.js"
 import dotenv from "dotenv"
 
 dotenv.config()
+
+import qrRoutes from "./src/routes/qrRoutes.js";
 
 
 const PORT=process.env.PORT || 3000
@@ -30,6 +34,8 @@ app.use("/api/auth", authRoute)
 app.use("/api/user", UserRouthe)
 
 app.use("/api/events", eventRoute);
+
+app.use("/api/qr", qrRoutes);
 
 
 
