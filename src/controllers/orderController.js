@@ -4,11 +4,12 @@ import Event from '../models/eventModel.js';
 import paystackService from '../config/paystackService.js';
 import crypto from 'crypto';
 
-export const initializePayment = async (req, res)=>{
+export const initializePayment = async (req, res) => {
     try {
-        const { event, name, email, phoneNo, tickets, quantity } = req.body;
+        const { event, guestName, guestEmail, phoneNo, tickets, quantity } = req.body;
 
-        if (!name || !email || !phoneNo || !event || !tickets || !quantity) {
+       
+        if (!guestName || !guestEmail || !phoneNo || !event || !tickets || !quantity) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
@@ -23,50 +24,53 @@ export const initializePayment = async (req, res)=>{
             });
         }
 
-        const selectedTicket = eventData.tickets.find(t => t.type === tickets);
+        
+        const selectedTicket = eventData.tickets.find(t => t.ticketType === tickets);
 
-        if (!selectedTicket){
+        if (!selectedTicket) {
             return res.status(400).json({
                 success: false,
                 message: "Selected ticket type not found for this event"
-            })
+            });
         }
+
         const ticketId = selectedTicket._id;
         const ticketCode = crypto.randomUUID();
-        const totalPrice = selectedTicket.price * quantity;
+        const totalPrice = selectedTicket.price * Number(quantity);
 
-        //Sending request to Paystack
+        /
         const response = await paystackService.transaction.initialize({
-            email,
+            email: guestEmail,
             amount: totalPrice * 100
-        }
-);
-    
-    const { authorization_url, reference } = response.data.data;
+        });
+        
+        const { authorization_url, reference } = response.data.data;
 
-    const order = await Order.create({
-        name,
-        email,
-        phoneNo,
-        event,
-        quantity,
-        selectedTicket: tickets,
-        price: selectedTicket.price,
-        totalPrice,
-        reference,
-        paymentStatus: "pending",
-        ticketId,
-        ticketCode
-    });
+        const order = await Order.create({
+            guestName,
+            guestEmail,
+            phoneNo,
+            event,
+            quantity: Number(quantity),
+            selectedTicket: tickets,
+            price: selectedTicket.price,
+            totalPrice,
+            reference,
+            paymentStatus: "pending",
+            ticketId,
+            ticketCode
+        });
 
-    res.status(200).json({
-        success: true,
-        message: "Payment initialized successfully",
-        paymentLink: authorization_url,
-        reference
-    });
+        return res.status(200).json({
+            success: true,
+            message: "Payment initialized successfully",
+            paymentLink: authorization_url,
+            reference,
+            order
+        });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("Payment initialization error:", error.message);
+        return res.status(500).json({ success: false, message: error.message });
     }
 };
