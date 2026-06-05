@@ -57,6 +57,7 @@ tickets: [ {
    type: {
    type: String,
    enum: [ "Standard", "Premium", "VVIP"],
+   available: { type: Number },
    required: true
 },
 
@@ -102,7 +103,8 @@ sold: {
       "Sold Out"
    ],
    default: "Upcoming"
-  }
+  }, 
+  
 
 
 }, { timestamps: true});   
