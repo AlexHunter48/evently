@@ -3,6 +3,7 @@
 import Order from '../models/orderModel.js'
 import { verifyTransaction } from '../services/paystackServices.js'
 import Event from '../models/eventModel.js'
+import { generateQRForTicket } from '../controllers/qrController.js'
 
 const handleWebhook = async (req, res) => {
     const { event, data } = req.body
@@ -17,6 +18,7 @@ const handleWebhook = async (req, res) => {
                     order.paymentStatus = 'completed'
                     order.paidAt = new Date()
                     await order.save()
+                    await generateQRForTicket(order.ticketId)
 
                     const eventData = await Event.findById(order.event)
                     if (eventData) {
