@@ -1,37 +1,30 @@
 import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema({
-
-   organizerId: {
+  organizerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true
   },
-
-eventType: {
-   type: String,
-   enum: ["Free", "Paid"],
-   default: "Free"
-},
-
-    title: {
-       type: String,
-       required: true,
-       trim: true
+  eventType: {
+    type: String,
+    enum: ["Free", "Paid"],
+    default: "Free"
   },
-
-description: {
-
-   type: String,
-   required: true,
-   trim: true
-},
-
-
-     category: {
-     type: String,
-     required: true,
-     enum: [
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  description: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: [
       "Music & Nightlife",
       "Tech & Innovation",
       "Business & Networking",
@@ -40,80 +33,70 @@ description: {
       "Classes & Workshops",
       "Other"
     ],
-     default: "Other"
-
+    default: "Other"
   },
   location: {
-   type: String,
-   required: true
+    type: String,
+    required: true
   },
-  
-capacity: {
-   type: Number,
-   required: true
-},
-
-tickets: [ {
-   type: {
-   type: String,
-   enum: [ "Standard", "Premium", "VVIP"],
-   available: { type: Number },
-   required: true
-},
-
-price: {
-   type: Number,
-   required: true
-},
-
-quantity: {
-   type: Number,
-   required: true
-},
-sold: {
-   type: Number,
-   default: 0
-}
-}
-],
-
+  capacity: {
+    type: Number,
+    required: true
+  },
+ 
+  tickets: [
+    {
+      ticketType: { 
+        type: String,
+        enum: ["Standard", "Premium", "VVIP"],
+        required: true
+      },
+      price: {
+        type: Number,
+        required: true
+      },
+      quantity: {
+        type: Number,
+        required: true
+      },
+      sold: {
+        type: Number,
+        default: 0
+      }
+    }
+  ],
   date: {
-   type: Date,
-   required: true
+    type: Date,
+    required: true
   },
-
   time: {
-     type: String,
-     required: true
+    type: String,
+    required: true
   },
-
   bannerImage: {
-  type: String,
-  required: true
+    type: String,
+    required: true
   },
-
   status: {
-   type: String,
-   enum: [
+    type: String,
+    enum: [
       "Pending Approval",
       "Upcoming",
       "Ongoing",
       "Completed",
       "Cancelled",
       "Sold Out"
-   ],
-   default: "Upcoming"
-  }, 
-  
+    ],
+    default: "Upcoming"
+  }
+}, { timestamps: true });
 
-
-}, { timestamps: true});   
 
 eventSchema.index({ title: "text", description: "text" });
 eventSchema.index({ category: 1 });
 eventSchema.index({ location: 1 });
 eventSchema.index({ date: 1 });
 
-const Event = mongoose.model("Event",eventSchema);
+const Event = mongoose.model("Event", eventSchema);
 
 export default Event;
