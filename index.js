@@ -8,6 +8,8 @@ import UserRouthe from "./src/routes/userRoute.js"
 
 import eventRoute from "./src/routes/eventRoute.js"
 
+import webhookRoutes from './routes/webhookRoutes.js'
+
 import connectDB from "./src/config/db.js"
 
 import dotenv from "dotenv"
@@ -25,11 +27,13 @@ app.use(express.json())
 
 app.use(cors())
 
-app.use("/api/auth", authRoute)
+app.use("/api/auth", authRoute);
 
-app.use("/api/user", UserRouthe)
+app.use("/api/user", UserRouthe);
 
 app.use("/api/events", eventRoute);
+
+app.use('/api/webhook', webhookRoutes);
 
 
 
