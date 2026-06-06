@@ -5,10 +5,13 @@ import connectDB from "./src/config/db.js";
 
 
 import authRoute from "./src/routes/authRoute.js";
-import UserRouthe from "./src/routes/userRoute.js";
+import UserRouthe from "./src/routes/userRoute.js"; 
 import eventRoute from "./src/routes/eventRoute.js";
 import ticketRoute from "./src/routes/ticketRoute.js";
 import orderRoute from "./src/routes/orderRoute.js";
+
+
+import webhookRoutes from './src/routes/webhookRoutes.js'; 
 
 dotenv.config();
 
@@ -23,6 +26,7 @@ app.use(express.json());
 app.use(cors());
 
 
+app.use('/api/webhook', webhookRoutes); 
 app.use("/api/auth", authRoute);
 app.use("/api/user", UserRouthe);
 app.use("/api/events", eventRoute); 
@@ -32,6 +36,7 @@ app.use("/api/order", orderRoute);
 
 app.get("/test", (req, res) => res.json({ message: "working" }));
 
+
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running cleanly on port ${PORT}`);
 });
