@@ -78,7 +78,7 @@ if (invalidTicket) {
   (sum, ticket) => sum + ticket.quantity, 0
 );
 
-if (totalTickets !== capacity) {
+if (totalTickets !== Number(capacity)) {
   return res.status(400).json({
     message: "Total tickets must be equal to capacity"
   });
@@ -87,7 +87,7 @@ if (totalTickets !== capacity) {
 
 const eventDate = new Date(date);
 if (eventDate < new Date()) {
-  return res.sta(400).json({
+  return res.status(400).json({
     message: "Event date cannot be in the past"
   });
 }
@@ -266,7 +266,7 @@ if (req.body.tickets || req.body.capacity) {
     (sum, ticket) => sum + ticket.quantity, 0
   );
 
-  if (totalTickets !== capacity) {
+  if (totalTickets !== Number(capacity)) {
     return res.status(400).json({
       message: "Total tickets must be equal to capacity"
     });
