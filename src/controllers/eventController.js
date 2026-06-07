@@ -1,4 +1,5 @@
 
+import mongoose from "mongoose";
 import Event from "../models/eventModel.js"
 
 import User from "../models/userModel.js";
@@ -35,6 +36,7 @@ if (user.role !== "organizer") {
 
 
 if (
+  !eventType ||
   !organizerId ||
   !title ||
   !description ||
@@ -43,28 +45,53 @@ if (
   !capacity ||
   !date ||
   !time ||
-  !bannerImage
+  !bannerImage 
 ) {
   return res.status(400).json({
     message: "All required fields must be provided"
   });
 }
 
-if (eventType === "Paid" && (!ticketPrice || ticketPrice <= 0)) {
-  return res.status(400).json({
-    message: "Paid events must have a valid ticket price"
+if (eventType === "Paid") {
+  if (!tickets || tickets.length === 0) { 
+    return res.status(400).json({
+message: "Paid events must have tickets"
   });
 }
 
-const totalTickets = tickets.reduce(
-  (sum, tickets) => sum + tickets.quantity, 0
+
+const invalidTicket = tickets.some(
+  ticket => 
+    ticket.price == null ||
+  ticket.quantity  == null ||
+  ticket.price <= 0 ||
+  ticket.quantity <= 0
+);
+
+if (invalidTicket) {
+  return res.status(400).json({
+    message: " All paid events must have  valid ticket price and quantity"
+  });
+}
+
+  const totalTickets = tickets.reduce(
+  (sum, ticket) => sum + ticket.quantity, 0
 );
 
 if (totalTickets !== capacity) {
-  return res.status(404).json({
+  return res.status(400).json({
     message: "Total tickets must be equal to capacity"
   });
 }
+ }
+
+const eventDate = new Date(date);
+if (eventDate < new Date()) {
+  return res.sta(400).json({
+    message: "Event date cannot be in the past"
+  });
+}
+
 
 const newEvent = await Event.create({
   organizerId,
@@ -74,7 +101,7 @@ const newEvent = await Event.create({
   category,
   location,
   capacity,
-  tickets,
+  tickets: tickets || [],
   date,
   time,
   bannerImage
@@ -120,7 +147,10 @@ if (category) {
 }
 
 if (location) {
-  filter.location = location;
+  filter.location = {
+    $regex: location,
+    $options: "i"
+};
 }
 
 if (eventType) {
@@ -155,6 +185,12 @@ res.status(500).json({
 export const getSingleEvent = async (req, res) => {
     try {
 const { id } = req.params;
+
+if (!mongoose.Types.ObjectId.isValid(id)) {
+  return res.status(400).json({
+    message: "Invalid event id"
+  });
+}
 
 const event = await Event.findById(id);
 
@@ -220,8 +256,7 @@ export const updateEvent = async (req, res) => {
         message: "You can only update events you created"
       });
     }
-if (req.body.tickets || req.capacity) {
-  const event = await Event.findById(id);
+if (req.body.tickets || req.body.capacity) {
 
   const capacity = req.body.capacity || event.capacity;
 
@@ -232,7 +267,7 @@ if (req.body.tickets || req.capacity) {
   );
 
   if (totalTickets !== capacity) {
-    return res.status(404).json({
+    return res.status(400).json({
       message: "Total tickets must be equal to capacity"
     });
   }
@@ -335,21 +370,18 @@ export const saveEvent = async (req, res) => {
 
   try {
 
-    const { userId, eventId } = req.body;
+    const userId = req.user._id;
+    const { eventId } = req.params
 
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
+      message: "User not found"
       });
     }
 
-if (user.role !== "guest") {
-  return res.status(403).json({
-    message: "Only guests can save events"
-  });
-}
+
 
     const event = await Event.findById(eventId);
 
@@ -389,14 +421,22 @@ if (user.role !== "guest") {
 export const unsaveEvent = async (req, res) => {
 
   try {
-
-    const { userId, eventId } = req.body;
+    const userId = req.user._id;
+    const { eventId } = req.params;
 
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
+       message: "User not found"
+      });
+    }
+    if (!user.savedEvents.some(
+      id => id.toString() === eventId
+    )) {
+
+      return res.status(404).json({
+message: "Event not found in saved events"
       });
     }
 
@@ -426,25 +466,25 @@ export const getSavedEvents = async (req, res) => {
 
   try {
 
-    const { userId } = req.params;
+    const userId  = req.user._id;
 
     const user = await User.findById(userId)
       .populate("savedEvents");
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found"
-      });
+       message: "User not found"
+      })
     }
 
     res.status(200).json({
+      message: "Saved events fetched successfully",
       count: user.savedEvents.length,
       savedEvents: user.savedEvents
-    });
-
+    })
   } catch (error) {
 
-    console.log("Error fetching saved events:", error);
+    console.log("Error fetching saved events:", error)
 
     res.status(500).json({
       message: error.message

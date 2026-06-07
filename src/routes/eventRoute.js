@@ -16,14 +16,13 @@ import { createEvent,
 const router = express.Router();
 
 router.post("/", verifyToken, createEvent);
-router.post("/", createEvent);
 router.get("/", getAllEvents);
 router.get("/organizer/:organizerId", getOrganizerEvents);
 router.get("/:id", getSingleEvent);
 router.patch("/:id",verifyToken, updateEvent);
 router.delete("/:id",verifyToken, deleteEvent);
-router.post("/save", saveEvent);
-router.post("/unsave", unsaveEvent);
-router.get("/saved/:userId", getSavedEvents);
+router.post("/saveevent/:eventId", verifyToken,saveEvent);
+router.delete("/unsave/:eventId", verifyToken,unsaveEvent);
+router.get("/saved",verifyToken, getSavedEvents);
 
 export default router;

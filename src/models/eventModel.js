@@ -57,17 +57,17 @@ tickets: [ {
    type: {
    type: String,
    enum: [ "Standard", "Premium", "VVIP"],
-   required: true
+   
 },
 
 price: {
    type: Number,
-   required: true
+   
 },
 
 quantity: {
    type: Number,
-   required: true
+   
 },
 sold: {
    type: Number,
