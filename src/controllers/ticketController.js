@@ -114,4 +114,5 @@ const cancelTicket = async (req, res) => {
     return res.status(500).json({ message: 'Server error while cancelling ticket' });
   }
 };
-export { buyTicket, getMyTickets, getSingleTicket };
+
+export { buyTicket, getMyTickets, getSingleTicket, cancelTicket };

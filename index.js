@@ -1,13 +1,15 @@
+import 'dotenv/config';
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./src/config/db.js";
-
-
 import authRoute from "./src/routes/authRoute.js";
-import UserRouthe from "./src/routes/userRoute.js"; 
+import UserRouthe from "./src/routes/userRoute.js";
 import eventRoute from "./src/routes/eventRoute.js";
 import ticketRoute from "./src/routes/ticketRoute.js";
+import notificationRoutes from './src/routes/notificationRoutes.js';
+
+dotenv.config();
 import orderRoute from "./src/routes/orderRoute.js";
 
 
@@ -20,6 +22,8 @@ const app = express();
 
 
 connectDB();
+
+app.use('/api/notifications', notificationRoutes);
 
 
 app.use(express.json());
@@ -34,9 +38,7 @@ app.use("/api/tickets", ticketRoute);
 app.use("/api/order", orderRoute);
 app.use("/api/admin", adminRoute);
 
-
 app.get("/test", (req, res) => res.json({ message: "working" }));
-
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running cleanly on port ${PORT}`);
