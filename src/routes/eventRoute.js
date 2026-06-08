@@ -8,7 +8,8 @@ import { createEvent,
        getOrganizerEvents,
        saveEvent,
        unsaveEvent,
-       getSavedEvents
+       getSavedEvents,
+       getMyEvents
     } from "../controllers/eventController.js";
 
     import verifyToken from "../middleware/authMiddleware.js";
@@ -19,6 +20,7 @@ router.post("/", verifyToken, createEvent);
 router.get("/", getAllEvents);
 router.get("/saved",verifyToken, getSavedEvents);
 router.get("/organizer/:organizerId", getOrganizerEvents);
+router.get("/my-events", verifyToken, getMyEvents)
 router.get("/:id", getSingleEvent);
 router.patch("/:id",verifyToken, updateEvent);
 router.delete("/:id",verifyToken, deleteEvent);

@@ -382,6 +382,21 @@ res.status(500).json({
 };
 
 
+export const getMyEvents = async (req, res) => {
+try {
+const organizerId = req.user._id;
+const events = await Event.find({organizerId}).sort({ createdAt: -1 });
+res.status(200).json({
+  count: events.length, events
+});
+} catch(error) {
+  res.status(500).json({
+    message: error.message
+  });
+}
+}
+
+
 export const saveEvent = async (req, res) => {
 
   try {

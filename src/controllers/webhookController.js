@@ -1,6 +1,6 @@
 import Order from '../models/orderModel.js';
 import { verifyTransaction } from '../services/paystackServices.js';
-import { generateQRForTicket } from '../controllers/qrController.js';
+//import { generateQRForTicket } from '../controllers/qrController.js';
 
 const handleWebhook = async (req, res) => {
     const { event, data } = req.body;
@@ -27,7 +27,7 @@ const handleWebhook = async (req, res) => {
                     await order.save();
 
                     
-                    await generateQRForTicket(order.ticketId);
+                  //  await generateQRForTicket(order.ticketId);
                     
                  
                 } else {
