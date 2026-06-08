@@ -116,5 +116,3 @@ const cancelTicket = async (req, res) => {
 };
 
 export { buyTicket, getMyTickets, getSingleTicket, cancelTicket };
-
-export { buyTicket, getMyTickets, getSingleTicket, cancelTicket };
