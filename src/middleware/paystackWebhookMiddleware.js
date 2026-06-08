@@ -37,4 +37,4 @@ const verifyWebhook = (req, res, next) => {
 };
 
 export default verifyWebhook;
-export default verifyWebhook;
+

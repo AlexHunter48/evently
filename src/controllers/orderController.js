@@ -37,8 +37,6 @@ export const initializePayment = async (req, res) => {
         const ticketId = selectedTicket._id;
         const ticketCode = crypto.randomUUID();
         const totalPrice = selectedTicket.price * Number(quantity);
-
-        /
         const response = await paystackService.transaction.initialize({
             email: guestEmail,
             amount: totalPrice * 100

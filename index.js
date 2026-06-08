@@ -12,7 +12,7 @@ import orderRoute from "./src/routes/orderRoute.js";
 
 
 import webhookRoutes from './src/routes/webhookRoutes.js'; 
-
+import adminRoute from "./src/routes/adminRoute.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -32,6 +32,7 @@ app.use("/api/user", UserRouthe);
 app.use("/api/events", eventRoute); 
 app.use("/api/tickets", ticketRoute);
 app.use("/api/order", orderRoute);
+app.use("/api/admin", adminRoute);
 
 
 app.get("/test", (req, res) => res.json({ message: "working" }));
