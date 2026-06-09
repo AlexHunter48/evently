@@ -39,6 +39,8 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  
+
   capacity: {
     type: Number,
     required: true
@@ -49,15 +51,15 @@ const eventSchema = new mongoose.Schema({
       ticketType: { 
         type: String,
         enum: ["Standard", "Premium", "VVIP"],
-        required: true
+        
       },
       price: {
         type: Number,
-        required: true
+        
       },
       quantity: {
         type: Number,
-        required: true
+        
       },
       sold: {
         type: Number,
