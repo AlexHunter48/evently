@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -17,20 +17,15 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-
 connectDB();
-
-
-
 
 app.use(express.json());
 app.use(cors());
 
-
-app.use('/api/webhook', webhookRoutes); 
+app.use("/api/webhook", webhookRoutes);
 app.use("/api/auth", authRoute);
 app.use("/api/user", UserRouthe);
-app.use("/api/events", eventRoute); 
+app.use("/api/events", eventRoute);
 app.use("/api/tickets", ticketRoute);
 app.use("/api/order", orderRoute);
 app.use('/api/notifications', notificationRoutes);
@@ -39,5 +34,5 @@ app.use('/api/voting', votingRoutes);
 app.get("/test", (req, res) => res.json({ message: "working" }));
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running cleanly on port ${PORT}`);
+  console.log(` Server running cleanly on port ${PORT}`);
 });
