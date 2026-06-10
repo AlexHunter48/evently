@@ -22,6 +22,8 @@ connectDB();
 app.use(express.json());
 app.use(cors());
 
+// Route Middlewares
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/webhook", webhookRoutes);
 app.use("/api/auth", authRoute);
 app.use("/api/user", UserRouthe);
