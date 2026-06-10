@@ -8,7 +8,8 @@ import { createEvent,
        getOrganizerEvents,
        saveEvent,
        unsaveEvent,
-       getSavedEvents
+       getSavedEvents,
+       getMyEvents
     } from "../controllers/eventController.js";
 
     import verifyToken from "../middleware/authMiddleware.js";
@@ -16,14 +17,14 @@ import { createEvent,
 const router = express.Router();
 
 router.post("/", verifyToken, createEvent);
-router.post("/", createEvent);
 router.get("/", getAllEvents);
+router.get("/saved",verifyToken, getSavedEvents);
 router.get("/organizer/:organizerId", getOrganizerEvents);
+router.get("/my-events", verifyToken, getMyEvents)
 router.get("/:id", getSingleEvent);
 router.patch("/:id",verifyToken, updateEvent);
 router.delete("/:id",verifyToken, deleteEvent);
-router.post("/save", saveEvent);
-router.post("/unsave", unsaveEvent);
-router.get("/saved/:userId", getSavedEvents);
+router.post("/saveevent/:eventId", verifyToken,saveEvent);
+router.delete("/unsave/:eventId", verifyToken,unsaveEvent);
 
 export default router;
