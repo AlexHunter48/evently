@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-import Event from "../models/eventModel.js";
-=======
 
 import mongoose from "mongoose";
 import Event from "../models/eventModel.js"
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 
 import User from "../models/userModel.js";
 
@@ -26,12 +22,6 @@ export const createEvent = async (req, res) => {
 
     const user = await User.findById(organizerId);
 
-<<<<<<< HEAD
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-=======
 if (!user) {
   return res.status(404).json({
     message: "User not found"
@@ -128,7 +118,6 @@ console.log("Error creating event:", error.message);
 res.status(500).json({
   message: error.message
 });
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
     }
 
     if (user.role !== "organizer") {
@@ -195,7 +184,7 @@ res.status(500).json({
       message: error.message,
     });
   }
-};
+}
 
 export const getAllEvents = async (req, res) => {
   try {
