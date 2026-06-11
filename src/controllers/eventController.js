@@ -283,7 +283,7 @@ const eventDate = new Date(req.body.date);
         new: true,
         runValidators: true
       }
-    }
+    )}
 
     const updatedEvent = await Event.findByIdAndUpdate(id, req.body, {
       new: true,
@@ -301,7 +301,7 @@ const eventDate = new Date(req.body.date);
       message: error.message,
     });
   }
-};
+}};
 
 export const deleteEvent = async (req, res) => {
   try {
