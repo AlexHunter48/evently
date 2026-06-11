@@ -1,6 +1,5 @@
-
 import mongoose from "mongoose";
-import Event from "../models/eventModel.js"
+import Event from "../models/eventModel.js";
 
 import User from "../models/userModel.js";
 
@@ -22,102 +21,10 @@ export const createEvent = async (req, res) => {
 
     const user = await User.findById(organizerId);
 
-if (!user) {
-  return res.status(404).json({
-    message: "User not found"
-  });
-}
-
-if (user.role !== "organizer") {
-  return res.status(403).json({
-  message:  "Only organizers can create events"
-  });
-}
-
-
-if (
-  !eventType ||
-  !organizerId ||
-  !title ||
-  !description ||
-  !category ||
-  !location ||
-  !capacity ||
-  !date ||
-  !time ||
-  !bannerImage 
-) {
-  return res.status(400).json({
-    message: "All required fields must be provided"
-  });
-}
-
-if (eventType === "Paid") {
-  if (!tickets || tickets.length === 0) { 
-    return res.status(400).json({
-message: "Paid events must have tickets"
-  });
-}
-
-
-const invalidTicket = tickets.some(
-  ticket => 
-    ticket.price == null ||
-  ticket.quantity  == null ||
-  ticket.price <= 0 ||
-  ticket.quantity <= 0
-);
-
-if (invalidTicket) {
-  return res.status(400).json({
-    message: " All paid events must have  valid ticket price and quantity"
-  });
-}
-
-  const totalTickets = tickets.reduce(
-  (sum, ticket) => sum + ticket.quantity, 0
-);
-
-if (totalTickets !== Number(capacity)) {
-  return res.status(400).json({
-    message: "Total tickets must be equal to capacity"
-  });
-}
- }
-
-const eventDate = new Date(date);
-if (eventDate < new Date()) {
-  return res.status(400).json({
-    message: "Event date cannot be in the past"
-  });
-}
-
-
-const newEvent = await Event.create({
-  organizerId,
-  eventType,
-  title,
-  description,
-  category,
-  location,
-  capacity,
-  tickets: tickets || [],
-  date,
-  time,
-  bannerImage
-});
-
-res.status(201).json({
-  message: "Event created successfully",
-  event: newEvent
-});
-
-  } catch (error) {
-console.log("Error creating event:", error.message);
-
-res.status(500).json({
-  message: error.message
-});
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
 
     if (user.role !== "organizer") {
@@ -127,6 +34,7 @@ res.status(500).json({
     }
 
     if (
+      !eventType ||
       !organizerId ||
       !title ||
       !description ||
@@ -142,20 +50,44 @@ res.status(500).json({
       });
     }
 
-    if (eventType === "Paid" && (!tickets.price || tickets.price <= 0)) {
-      return res.status(400).json({
-        message: "Paid events must have a valid ticket price",
-      });
+    if (eventType === "Paid") {
+      if (!tickets || tickets.length === 0) {
+        return res.status(400).json({
+          message: "Paid events must have tickets",
+        });
+      }
+
+      const invalidTicket = tickets.some(
+        (ticket) =>
+          ticket.price == null ||
+          ticket.quantity == null ||
+          ticket.price <= 0 ||
+          ticket.quantity <= 0,
+      );
+
+      if (invalidTicket) {
+        return res.status(400).json({
+          message:
+            " All paid events must have  valid ticket price and quantity",
+        });
+      }
+
+      const totalTickets = tickets.reduce(
+        (sum, ticket) => sum + ticket.quantity,
+        0,
+      );
+
+      if (totalTickets !== Number(capacity)) {
+        return res.status(400).json({
+          message: "Total tickets must be equal to capacity",
+        });
+      }
     }
 
-    const totalTickets = tickets.reduce(
-      (sum, tickets) => sum + tickets.quantity,
-      0,
-    );
-
-    if (totalTickets !== capacity) {
-      return res.status(404).json({
-        message: "Total tickets must be equal to capacity",
+    const eventDate = new Date(date);
+    if (eventDate < new Date()) {
+      return res.status(400).json({
+        message: "Event date cannot be in the past",
       });
     }
 
@@ -167,7 +99,7 @@ res.status(500).json({
       category,
       location,
       capacity,
-      tickets,
+      tickets: tickets || [],
       date,
       time,
       bannerImage,
@@ -184,7 +116,7 @@ res.status(500).json({
       message: error.message,
     });
   }
-}
+};
 
 export const getAllEvents = async (req, res) => {
   try {
@@ -341,12 +273,8 @@ if (req.body.tickets !== undefined ||
    if (req.body.date){
 const eventDate = new Date(req.body.date);
 
-if (eventDate < new Date()) {
-  return res.status(400).json({
-    message: "Event date cannot be in the past"
-  });
-}
-   }
+    if (req.body.date) {
+      const eventDate = new Date(req.body.date);
 
     const updatedEvent = await Event.findByIdAndUpdate(
       id,
@@ -430,20 +358,20 @@ export const getOrganizerEvents = async (req, res) => {
   }
 };
 
-
 export const getMyEvents = async (req, res) => {
-try {
-const organizerId = req.user._id;
-const events = await Event.find({organizerId}).sort({ createdAt: -1 });
-res.status(200).json({
-  count: events.length, events
-});
-} catch(error) {
-  res.status(500).json({
-    message: error.message
-  });
-}
-}
+  try {
+    const organizerId = req.user._id;
+    const events = await Event.find({ organizerId }).sort({ createdAt: -1 });
+    res.status(200).json({
+      count: events.length,
+      events,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 
 export const saveEvent = async (req, res) => {
@@ -505,10 +433,7 @@ export const unsaveEvent = async (req, res) => {
        message: "User not found"
       });
     }
-    if (!user.savedEvents.some(
-      id => id.toString() === eventId
-    )) {
-
+    if (!user.savedEvents.some((id) => id.toString() === eventId)) {
       return res.status(404).json({
 message: "Event not found in saved events"
       });
