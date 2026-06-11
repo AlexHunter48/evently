@@ -1,39 +1,39 @@
-# EVENTLY — Backend API Ecosystem
+# EVENTLY — Backend API Production Ecosystem 🚀
 
-Evently is a high-performance, secure backend REST API tailored for digital event creation, ticket reservation management, and secure webhook-validated transaction flows. Designed as a collective capstone project, the system utilizes a modern Node.js/Express ESM architecture, integrated with MongoDB Atlas for persistent global storage, JWT access tokens for stateful security roles, and Paystack for real-time transactional webhooks.
+Evently is a high-performance, secure backend REST API tailored for digital event creation, ticket reservation inventories, role-isolated event modeling, and secure webhook-validated payment verification flows. Built as a collaborative engineering capstone, the platform uses an enterprise Node.js/Express ESM architecture integrated with a distributed MongoDB Atlas cluster, stateful JSON Web Tokens (JWT) role authorization, and Paystack financial webhooks.
 
 ---
 
-## Developers Team & Core Architecture
+## Engineering Team & Core Architecture Map
 
-The infrastructure was constructed across a parallel development pipeline distributed among 9 Developers, categorized into 6 tactical runtime phases:
+The platform infrastructure was constructed across a parallel production pipeline distributed among 9 engineers, categorized into 6 tactical runtime phases:
 
-| Phase | Module | Assigned Dev(s) | Architecture Dependencies |
+| Phase | Module | Assigned Engineer(s) | Architecture Dependencies & Guardrails |
 | :--- | :--- | :--- | :--- |
-| **Phase 1** | Authentication & User Management | **Smash** | Base Foundation (JWT, Crypto Cryptography Hooks) |
-| **Phase 2** | Event Management | **Courage** | Requires Phase 1 (Organizer Role Isolation) |
-| **Phase 2** | Ticketing & Booking | **Samuel** | Requires Event Instances & Inventory Thresholds |
-| **Phase 3** | Payment Integration (Paystack) | **Access & Alex** | Requires Ticketing Hookups & Webhook Middleware |
-| **Phase 4** | QR Code & Verification | **Zomzom** | Triggers upon validated Payment Ledger status |
-| **Phase 4** | Automated Notifications | **Jet** | Asynchronous execution via Nodemailer event streams |
-| **Phase 5** | Management Dashboard Analytics | **Amara** | Multi-collection pipeline aggregation layers |
-| **Phase 6** | DevOps, Git Integration & Deployment | **John** | **Continuous Integration / Active Pipeline Deployment Lead** |
+| **Phase 1** | Authentication & User Management | **Smash** (Doc by Alex) | Core Foundation (`/api/auth`, `/api/user`). Implements `guest` and `organizer` state tokens. |
+| **Phase 2** | Event Management Engine | **Courage** | Requires Phase 1. Handles strict ownership loops for creating/modifying event payloads. |
+| **Phase 2** | Ticketing & Inventory Booking | **Samuel** | Public access tier. Automated capacity countdowns; prevents event overselling anomalies. |
+| **Phase 3** | Payment Integration & Hooks | **Access & Alex** | Integrates Paystack engine initialization and secure automated server webhooks. |
+| **Phase 4** | QR Code Validation | **Zomzom** | Automated generation downstream from a validated `completed` payment ledger. |
+| **Phase 4** | Automated Notifications | **Jet** | Dispatches purchase confirmations, receipts, and codes asynchronously via Nodemailer. |
+| **Phase 5** | Admin Dashboard Aggregation | **Amara** | Management oversight portal querying multi-collection aggregation pipelines. |
+| **Phase 5** | Interactive Polling & Voting | **Smash** | Implements attendee-locked award nomination systems and event feedback loops. |
+| **Phase 6** | DevOps, Git Strategy & Delivery | **John Ibe** | **Continuous Integration / Active Pipeline Cloud Deployment Infrastructure Lead.** |
 
 ---
 
 ## Technology Stack & Engine Environments
-* **Runtime Environment:** Node.js v24+
-* **Backend Application Framework:** Express.js (ECMAScript Modules - ESM)
-* **Database Engine:** MongoDB Atlas Cluster (Distributed Shard-Set Replica)
+* **Runtime Environment:** Node.js v24+ (ESM Module Syntax)
+* **Application Framework:** Express.js 
+* **Database Engine:** MongoDB Atlas Cluster (Distributed Shard-Set Replica Set)
 * **Object Data Modeling (ODM):** Mongoose v8+
-* **Cryptography & Token Security:** JSON Web Tokens (JWT) & Bcrypt.js
+* **Cryptography & Web Security:** JSON Web Tokens (JWT), Bcrypt.js, HMAC SHA512 Cryptographic Handshakes
 
 ---
 
-## Local Development Installation Blueprint
+## Local Development Environment Setup
 
 ### 1. Clone the Ecosystem Repository
-
 git clone [https://github.com/AlexHunter48/evently.git](https://github.com/AlexHunter48/evently.git)
 cd evently
 
@@ -42,72 +42,113 @@ Initialize and resolve the collective dependency manifest:
 
 npm install
 
-### 3. Environment Variables Key Configuration (.env)
-Create a .env file at the root root directory and insert the active cluster production environment keys
+### 3. Environment Configuration File (.env)
+Create an isolated .env file at the root repository directory using the structural template mapped below. For local isolation, do not push this file to GitHub (.gitignore enforced):
 
-### 4. Initialize Core Server
-Launch your local runtime instance server:
+# Server Pipeline Configuration
+PORT=3000
 
-node index.js
+# Database Connection (MongoDB Atlas URI string format)
+MONGO_DB_URL=mongodb+srv://<db_username>:<db_password>@cluster0.mongodb.net/evently?retryWrites=true&w=majority
 
----
+# Cryptography Secret Key for Token-signing Verification
+JWT_SECRET=your_super_secret_jwt_signing_key_here
 
-## Complete REST API Routing Infrastructure Map
+# Paystack Payment Gateway API Authentication
+PAYSTACK_SECRET_KEY=sk_test_your_private_paystack_key_here
 
-All endpoint interfaces expect payloads formatted purely in standard application-layer JSON. Headers processing protected routes require the format: Authorization: Bearer <JWT_TOKEN>.
+# Nodemailer SMTP Automation Credentials
+EMAIL_USER=your_automated_notification_email@gmail.com
+EMAIL_PASS=your_secure_smtp_app_password_here
 
-### 1. Authentication Layer (/api/auth)
-* POST /api/auth/register - Registers system actors. Instantiates default roles (Attendee, Organizer, Admin).
+### 4. Initialize Local Instances
+Bash
+# Production Run
+npm start
 
-* POST /api/auth/login - Validates user hashes and dispenses short-lived access JWT tokens.
+## Development Engine Monitoring (If nodemon is configured)
+npm run dev
+📡 Complete Production API Routing Infrastructure Architecture
+All interface interaction models process payloads formatted purely in application-layer JSON. Headers securing protected endpoint spaces expect the following format: Authorization: Bearer <JWT_TOKEN>.
 
-### 2. Profile Management Directory (/api/user)
-* GET /api/user/profile - Resolves the logged-in user profile payload.
+### 1. Authentication Engine (/api/auth)
+POST /api/auth/register - Registers system actors. Instantiates default guest role status.
 
-* PUT /api/user/update - Modifies secure metadata values for authenticated users.
+POST /api/auth/login - Validates credentials via Bcrypt and dispenses state tokens containing the user model payload (id, username, role).
 
-### 3. Event Scheduling Engine (/api/events)
-* GET /api/events - Public access route querying all active scheduled events (returns count metadata and entity arrays).
+### 2. User Directory & Profile Center (/api/user & /api/users)
+GET /api/user/me - Protected. Resolves and validates the current token payload for client dashboards.
 
-* POST /api/events - Restricted to Organizers. Publishes fresh event specs onto the schema layout.
+GET /api/user/allusers - Protected. Pulls a full collection manifest indexing registered app records.
 
-* PUT /api/events/:id - Restricted to Organizers. Patch or override parameters of a designated event.
+POST /api/users/save-event/:eventId (or /api/events/:eventId/save) - Protected (Guest Only). Appends an target Event ID references onto the user's savedEvents array.
 
-* DELETE /api/events/:id - Restricted to Organizers. Destroys an event listing and cancels structural dependent ticket slots.
+DELETE /api/events/:eventId/save - Protected (Guest Only). Splices an event array pointer to bookmark-clear.
 
-### 4. Ticketing, Reservation & Booking (/api/tickets)
-* POST /api/tickets/book - reserves ticket instances. Locks current transaction inventory counters.
+GET /api/users/saved-events - Protected (Guest Only). Returns user-bookmarked events with multi-field references.
 
-* GET /api/tickets/my-tickets - Fetches authenticated transaction passes held by a specific consumer.
+### 3. Event Scheduling Directory Engine (/api/events)
+GET /api/events - Public access router querying active listings. Supports query param parameters: ?search=, ?category=, ?location=, ?eventType=, ?status=.
 
-* DELETE /api/tickets/cancel/:id - Triggers ticket voiding flows. Re-allocates seats dynamically back into the parent event bucket.
+GET /api/events/:id - Resolves the comprehensive data schema footprint of a distinct scheduled event entity.
 
-### 5. Financial Webhook Gateways (/api/webhook)
-* POST /api/webhook/paystack - Multi-tier ingress endpoint listening to Paystack financial networks.
+POST /api/events - Protected (Organizer Only). Creates new event payloads. Validates that the cumulative ticket type counts match the global capacity parameter.
 
-* Security Protocol: Routed via a custom cryptographic parser verifyWebhook to confirm authorization origin, intercepting false payload attempts before processing event code.
+PATCH /api/events/:id - Protected (Organizer Only). Allows partial overrides on open parameters. Strictly locked to the event's designated creator entity.
 
-### 6. Transaction Orders (/api/order)
-* GET /api/order/history - Fetches systemic breakdown of historical financial order metrics.
+DELETE /api/events/:id - Protected (Organizer Only). Clears event records and sets relational dependencies to Cancelled states.
 
-### 7. Notifications Relay (/api/notifications)
-* POST /api/notifications/broadcast - Internal event trigger routing asynchronous transactional email receipts using automated Nodemailer instances.
+GET /api/events/organizer/:organizerId - Streams listings filtered under a designated promoter account.
 
-### 8. Interactive Features & Dashboard Monitoring (/api/voting & Admin Controls)
-* POST /api/voting/cast - Registers consumer feedback votes and event ratings metrics.
+GET /api/events/my-events - Protected (Organizer Only). Fetches all historical creations mapped to the requesting profile token.
 
-* GET /admin/users - Restricted to Admins. Access analytics tracking system-wide consumer profiles.
+### 4. Public Ticket Booking Registry (/api/tickets)
+No authorization barriers are enforced on purchasing pipelines—designed for fluid consumer access.
 
-* GET /admin/events - Restricted to Admins. Central oversight and modification interface monitoring collective event publishing metrics.
+POST /api/tickets/buy - Registers a guest order. Checks remaining seats to prevent overselling anomalies, auto-updating the parent model status flag to Sold Out if capacity drops to zero.
 
----
+GET /api/tickets/my-tickets - Indexes comprehensive transaction orders sorted by chronological timestamp metrics.
 
-## DevOps Continuous Integration & Quality Guardrails
+GET /api/tickets/:ticketCode - Queries a precise ticket layout receipt by parsing standard codes (TKT-YEAR-XXXXXX).
 
-* To preserve structural logic integrity across the rapid, asynchronous codebase assembly, the platform was maintained under a strict continuous integration protocol:
+PATCH /api/tickets/:ticketCode/cancel - Cancels an un-used pass reservation, dynamically returning inventory metrics to the parent event bucket capacity.
 
-* Isolation Branches Execution: Feature teams decoupled tasks out of standard operational nodes (feature/event-management, feature/payment-verification, etc.).
+### 5. Financial Webhook Network & Orders Pipeline (/api/webhook & /api/order)
+POST /api/order/initialize - Instantiates transaction records with Paystack, generating an outbound active paymentLink and transaction reference.
 
-* Pre-Integration Sanity Checks: Run standard module testing verifying local environment compiles (npm install -> node index.js) prior to final merging blocks.
+GET /api/order/:reference - Resolves processing parameters (pending, completed, failed) linked to a transaction payment token.
 
-* Collision Avoidance Resolvers: Upstream integration conflicts inside index.js were monitored and reconciled safely using fast-forward downstream sync patterns (git checkout --theirs .) to guarantee maximum operational up-time.
+POST /api/webhook/paystack - Automated Ingress Routing. Webhook interface parsing automated verification streams from Paystack payment gateways.
+
+Cryptographic Guardrail: Middleware validates inbound payloads using an HMAC SHA512 signature hash to prevent fraudulent payment generation actions.
+
+### 6. QR Code Generation & Entry Validation (`/api/qr`)
+All endpoints are fully authenticated and require a signed user JWT string passed via headers (`Authorization: Bearer <JWT_TOKEN>`).
+
+* **`POST /api/qr/generate`** - *User Dashboard Action.* Extracts ticket details, validates ownership, and transforms data components into a secure Base64 image data-string (`data:image/png;base64,...`) for instant frontend image rendering.
+* **`POST /api/qr/verify`** - *Organizer/Staff Scanner Tool.* Read-only gatekeeper diagnostic lookup. Decodes QR information payloads to check validity, status indicators, and attendee names without mutating database models.
+* **`POST /api/qr/checkin`** - *Organizer/Staff Scanner Tool.* Execution gate mutation layer. Marks state arrays as used inside Ticket and Order collections simultaneously, appending an immutable `checkedInAt` ISO timestamp to defeat gate-fraud or ticket re-use attempts.
+
+### 7. Interactive Polling & Event Voting System (/api/voting)
+POST /api/voting/events/:eventId/polls - Protected (Organizer Only). Initializes a new interactive event poll (Supports nominee or survey layout models).
+
+POST /api/voting/polls/:pollId/options - Protected (Organizer Only). Appends string option choices or candidate configurations into a targeting poll database schema.
+
+PATCH /api/voting/polls/:pollId/close - Protected (Organizer Only). Terminates voting pipelines, triggering calculations and flipping the visibility switch on aggregate data displays.
+
+GET /api/voting/polls/:pollId/results - Protected (Organizer Only). Pulls calculated data matrices sorted from highest to lowest vote thresholds. (Locked until closed).
+
+GET /api/voting/events/:eventId/polls - Protected (Attendee Only). Displays active running polls for real-time engagement processing.
+
+POST /api/voting/polls/:pollId/vote - Protected (Attendee Only). Records an attendee vote.
+
+Business Layer Restrictions: Ensures the requesting user token possesses a completed transaction order, verified event check-in status, and has zero prior entries submitted for the active poll index.
+
+### DevOps Continuous Integration & Quality Guardrails
+To preserve architecture integrity across rapid, asynchronous codebase delivery, the platform repository followed a strict continuous delivery pattern:
+
+Feature Decoupling: Workflows were separated into isolated branches (feature/devops-setup, feature/event-management) to keep work distinct.
+
+Merge Conflict Resolution: Branch overlaps within key integration modules (like src/routes and index.js) were safely audited and unified locally before delivery using downstream fast-forward synchronization methods.
+
+Production Isolation: Local deployment operations use protected .env variables that are explicitly isolated from the shared repository code via .gitignore. Production deployment environments run inside secure, cloud-hosted containers with encrypted runtime variable injection.
