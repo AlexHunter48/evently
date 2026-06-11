@@ -44,7 +44,14 @@ export const registerUser = async (req, res) => {
       role: assignedRole,
     });
 
-    res.status(201).json({ message: "Account created succesfully " });
+    res.status(201).json({
+      message: "Account created succesfully ",
+      user: {
+        username: newUser.username,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
   } catch (err) {
     console.log("Error creating user:", err);
 
