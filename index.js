@@ -13,7 +13,6 @@ import votingRoutes from "./src/routes/votingRoutes.js";
 import adminRoute from "./src/routes/adminRoute.js";
 import qrRoutes from "./src/routes/qrRoutes.js";
 
-dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const app = express();
