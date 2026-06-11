@@ -1,5 +1,7 @@
 import Order from "../models/orderModel.js";
 import Event from "../models/eventModel.js";
+import Ticket from "../models/ticketModel.js";
+import crypto from 'crypto';
 
 
 
@@ -34,13 +36,29 @@ const buyTicket = async (req, res) => {
       guestName,
       guestEmail,
       quantity: Number(quantity),
-      selectedTicket: ticketType,
+      ticketType,
       price: selectedTier.price,
       totalPrice,
       paymentStatus: "pending"
     });
 
-   
+    // Create a Ticket document for this purchase and link it to the order.
+    const ticketDoc = await Ticket.create({
+      userId: req.user ? req.user._id : null,
+      eventId: eventId,
+      ticketName: selectedTier.ticketType || ticketType,
+      price: selectedTier.price,
+      totalNumber: selectedTier.quantity || 0,
+      soldCount: Number(quantity),
+      ticketId: crypto.randomUUID ? crypto.randomUUID() : require('crypto').randomUUID(),
+      status: 'active',
+      order: order._id,
+    });
+
+    // Attach ticket reference to order and save
+    order.ticketId = ticketDoc._id;
+    await order.save();
+
     selectedTier.sold += Number(quantity);
     await event.save();
 

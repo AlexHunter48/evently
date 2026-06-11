@@ -3,8 +3,11 @@ import Order from '../models/orderModel.js';
 import Event from '../models/eventModel.js';
 import paystackService from '../config/paystackService.js';
 import crypto from 'crypto';
+import Ticket from '../models/ticketModel.js';
 
 export const initializePayment = async (req, res) => {
+    // Initialize a Paystack payment for a selected ticket tier and create an order record.
+    // The order remains pending until the webhook confirms payment success.
     try {
         const { event, guestName, guestEmail, phoneNo, tickets, quantity } = req.body;
 
@@ -34,14 +37,27 @@ export const initializePayment = async (req, res) => {
             });
         }
 
-        const ticketId = selectedTicket._id;
-        const ticketCode = crypto.randomUUID();
         const totalPrice = selectedTicket.price * Number(quantity);
 
+        // Create a Ticket document for this order. The ticket will be linked
+        // to the order and later used for QR generation and check-in.
+        const ticketDoc = await Ticket.create({
+            userId: req.user ? req.user._id : null,
+            eventId: event,
+            ticketName: selectedTicket.ticketType,
+            price: selectedTicket.price,
+            totalNumber: selectedTicket.quantity || 0,
+            soldCount: 0,
+            ticketId: crypto.randomUUID(),
+            status: 'active',
+        });
+
+        const ticketCode = crypto.randomUUID();
+
         
-        const response = await paystackService.transaction.initialize({
+        const response = await paystackService.post('/transaction/initialize', {
             email: guestEmail,
-            amount: totalPrice * 100
+            amount: totalPrice * 100,
         });
         
         const { authorization_url, reference } = response.data.data;
@@ -52,14 +68,22 @@ export const initializePayment = async (req, res) => {
             phoneNo,
             event,
             quantity: Number(quantity),
-            selectedTicket: tickets,
+            ticketType: tickets,
             price: selectedTicket.price,
             totalPrice,
             reference,
             paymentStatus: "pending",
-            ticketId,
-            ticketCode
+            ticketId: ticketDoc._id,
+            ticketCode,
+            user: req.user ? req.user._id : undefined,
         });
+
+        // Link ticket -> order
+        ticketDoc.order = order._id;
+        await ticketDoc.save();
+
+        // Store the selected ticket type in the order document so order data
+        // remains consistent with the Order schema.
 
         return res.status(200).json({
             success: true,
