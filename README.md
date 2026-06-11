@@ -10,10 +10,10 @@ The platform infrastructure was constructed across a parallel production pipelin
 
 | Phase | Module | Assigned Engineer(s) | Architecture Dependencies & Guardrails |
 | :--- | :--- | :--- | :--- |
-| **Phase 1** | Authentication & User Management | **Smash** (Doc by Alex) | Core Foundation (`/api/auth`, `/api/user`). Implements `guest` and `organizer` state tokens. |
+| **Phase 1** | Authentication & User Management | Alex | Core Foundation (`/api/auth`, `/api/user`). Implements `guest` and `organizer` state tokens. |
 | **Phase 2** | Event Management Engine | **Courage** | Requires Phase 1. Handles strict ownership loops for creating/modifying event payloads. |
 | **Phase 2** | Ticketing & Inventory Booking | **Samuel** | Public access tier. Automated capacity countdowns; prevents event overselling anomalies. |
-| **Phase 3** | Payment Integration & Hooks | **Access & Alex** | Integrates Paystack engine initialization and secure automated server webhooks. |
+| **Phase 3** | Payment Integration & Hooks | **Access** | Integrates Paystack engine initialization and secure automated server webhooks. |
 | **Phase 4** | QR Code Validation | **Zomzom** | Automated generation downstream from a validated `completed` payment ledger. |
 | **Phase 4** | Automated Notifications | **Jet** | Dispatches purchase confirmations, receipts, and codes asynchronously via Nodemailer. |
 | **Phase 5** | Admin Dashboard Aggregation | **Amara** | Management oversight portal querying multi-collection aggregation pipelines. |
