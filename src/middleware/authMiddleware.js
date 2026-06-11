@@ -19,6 +19,9 @@ const verifyToken = async (req, res, next) => {
       console.log("invalid token:", error.message);
       return res.status(401).json({ message: "User not authorized" });
     }
+
+    // If JWT verification passes, req.user is attached and route handlers can
+    // use req.user for authorization checks.
   }
 
   if (!token) {

@@ -12,7 +12,9 @@ const handleWebhook = async (req, res) => {
       const transaction = await verifyTransaction(reference);
 
       if (transaction.data.status === "success") {
-        const order = await Order.findOne({ ticketCode: reference });
+        // Paystack sends the payment reference back on success,
+        // so look up the order by the stored payment reference.
+        const order = await Order.findOne({ reference });
 
         if (order) {
           if (order.paymentStatus === "completed") {

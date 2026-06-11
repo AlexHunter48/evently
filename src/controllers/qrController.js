@@ -1,9 +1,19 @@
 import QRCode from "qrcode";
+import mongoose from "mongoose";
 import Ticket from "../models/ticketModel.js";
 import Order from "../models/orderModel.js";
 
+// Helper: accept either a Ticket._id or a ticketId string
+const findTicket = async (identifier) => {
+  if (mongoose.Types.ObjectId.isValid(String(identifier))) {
+    const byId = await Ticket.findById(identifier);
+    if (byId) return byId;
+  }
+  return await Ticket.findOne({ ticketId: String(identifier) });
+};
+
 export const generateQRForTicket = async (ticketId) => {
-  const ticket = await Ticket.findOne({ ticketId });
+  const ticket = await findTicket(ticketId);
   if (!ticket) {
     throw new Error("Ticket not found");
   }
@@ -25,7 +35,7 @@ export const generateTicketQR = async (req, res) => {
       return res.status(400).json({ success: false, message: "Ticket ID is required" });
     }
 
-    const ticket = await Ticket.findOne({ ticketId });
+    const ticket = await findTicket(ticketId);
     if (!ticket) {
       return res.status(404).json({ success: false, message: "Ticket not found" });
     }
@@ -64,7 +74,7 @@ export const verifyTicketQR = async (req, res) => {
       return res.status(400).json({ success: false, message: "Ticket ID is required" });
     }
 
-    const ticket = await Ticket.findOne({ ticketId });
+    const ticket = await findTicket(ticketId);
     if (!ticket) {
       return res.status(404).json({ success: false, message: "Ticket not found" });
     }
@@ -85,7 +95,7 @@ export const verifyTicketQR = async (req, res) => {
       data: {
         ticketId: ticket.ticketId,
         ticketType: ticket.ticketName,
-        attendeeName: orderDetails ? orderDetails.name : "Guest Attendee",
+        attendeeName: orderDetails ? orderDetails.guestName : "Guest Attendee",
         status: ticket.status
       }
     });
@@ -103,7 +113,7 @@ export const checkinTicketQR = async (req, res) => {
       return res.status(400).json({ success: false, message: "Ticket ID is required" });
     }
 
-    const ticket = await Ticket.findOne({ ticketId });
+    const ticket = await findTicket(ticketId);
     if (!ticket) {
       return res.status(404).json({ success: false, message: "Ticket not found" });
     }
@@ -117,8 +127,7 @@ export const checkinTicketQR = async (req, res) => {
 
     const orderDetails = await Order.findOne({ ticketId: ticket._id });
     if (orderDetails) {
-      orderDetails.status = "used";
-      await orderDetails.save();
+      // Leave order payment status unchanged; ticket check-in is tracked on the ticket.
     }
 
     return res.status(200).json({
@@ -126,7 +135,7 @@ export const checkinTicketQR = async (req, res) => {
       message: "Ticket checked in successfully",
       data: {
         ticketId: ticket.ticketId,
-        attendeeName: orderDetails ? orderDetails.name : "Guest Attendee",
+        attendeeName: orderDetails ? orderDetails.guestName : "Guest Attendee",
         checkedInAt: new Date()
       }
     });
