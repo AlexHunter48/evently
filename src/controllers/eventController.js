@@ -210,18 +210,12 @@ export const getAllEvents = async (req, res) => {
       filter.eventType = eventType;
     }
 
-<<<<<<< HEAD
-    if (status) {
-      filter.status = status;
-    }
-=======
 if (location) {
   filter.location = {
     $regex: location,
     $options: "i"
 };
 }
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 
     const events = await Event.find(filter).sort({ createdAt: -1 });
 
@@ -242,9 +236,6 @@ export const getSingleEvent = async (req, res) => {
   try {
     const { id } = req.params;
 
-<<<<<<< HEAD
-    const event = await Event.findById(id);
-=======
 if (!mongoose.Types.ObjectId.isValid(id)) {
   return res.status(400).json({
     message: "Invalid event id"
@@ -266,7 +257,6 @@ console.log("Error fetching event:", error);
 res.status(500).json({
     message: error.message
 });
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 
     if (!event) {
       return res.status(404).json({
@@ -324,14 +314,6 @@ export const updateEvent = async (req, res) => {
         message: "You can only update events you created",
       });
     }
-<<<<<<< HEAD
-    if (req.body.tickets || req.capacity) {
-      const event = await Event.findById(id);
-
-      const capacity = req.body.capacity || event.capacity;
-
-      const tickets = req.body.tickets || event.tickets;
-=======
 if (req.body.tickets !== undefined ||
    req.body.capacity !== undefined) {
 
@@ -343,19 +325,12 @@ if (req.body.tickets !== undefined ||
   req.body.tickets !== undefined 
   ? req.body.tickets : event.tickets;
 
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 
       const totalTickets = tickets.reduce(
         (sum, ticket) => sum + ticket.quantity,
         0,
       );
 
-<<<<<<< HEAD
-      if (totalTickets !== capacity) {
-        return res.status(404).json({
-          message: "Total tickets must be equal to capacity",
-        });
-=======
   if (totalTickets !== Number(capacity)) {
     return res.status(400).json({
       message: "Total tickets must be equal to capacity"
@@ -379,7 +354,6 @@ if (eventDate < new Date()) {
       {
         new: true,
         runValidators: true
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
       }
     }
 
@@ -456,8 +430,6 @@ export const getOrganizerEvents = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-=======
 
 export const getMyEvents = async (req, res) => {
 try {
@@ -474,38 +446,21 @@ res.status(200).json({
 }
 
 
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 export const saveEvent = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const { userId, eventId } = req.body;
-=======
 
     const userId = req.user._id;
     const { eventId } = req.params
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
-<<<<<<< HEAD
-        message: "User not found",
-      });
-    }
-
-    if (user.role !== "guest") {
-      return res.status(403).json({
-        message: "Only guests can save events",
-      });
-    }
-=======
       message: "User not found"
       });
     }
 
 
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 
     const event = await Event.findById(eventId);
 
@@ -540,20 +495,13 @@ export const saveEvent = async (req, res) => {
 
 export const unsaveEvent = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const { userId, eventId } = req.body;
-=======
     const userId = req.user._id;
     const { eventId } = req.params;
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
-<<<<<<< HEAD
-        message: "User not found",
-=======
        message: "User not found"
       });
     }
@@ -563,7 +511,6 @@ export const unsaveEvent = async (req, res) => {
 
       return res.status(404).json({
 message: "Event not found in saved events"
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
       });
     }
 
@@ -587,48 +534,28 @@ message: "Event not found in saved events"
 
 export const getSavedEvents = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const { userId } = req.params;
-=======
 
     const userId  = req.user._id;
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 
     const user = await User.findById(userId).populate("savedEvents");
 
     if (!user) {
       return res.status(404).json({
-<<<<<<< HEAD
-        message: "User not found",
-      });
-=======
        message: "User not found"
       })
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
     }
 
     res.status(200).json({
       message: "Saved events fetched successfully",
       count: user.savedEvents.length,
-<<<<<<< HEAD
-      savedEvents: user.savedEvents,
-    });
-  } catch (error) {
-    console.log("Error fetching saved events:", error);
-=======
       savedEvents: user.savedEvents
     })
   } catch (error) {
 
     console.log("Error fetching saved events:", error)
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 
     res.status(500).json({
       message: error.message,
     });
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> c3aa3b41b85db72cd56404a4d5a10105bc9f2b16
 };
