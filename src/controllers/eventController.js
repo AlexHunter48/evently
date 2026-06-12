@@ -236,39 +236,34 @@ export const updateEvent = async (req, res) => {
     }
 
     // When tickets or capacity are updated, validate the new totals.
-if (req.body.tickets !== undefined ||
-   req.body.capacity !== undefined) {
+    if (req.body.tickets !== undefined || req.body.capacity !== undefined) {
+      const capacity =
+        req.body.capacity !== undefined ? req.body.capacity : event.capacity;
 
-  const capacity = 
-  req.body.capacity !== undefined 
-  ? req.body.capacity : event.capacity;
-
-  const tickets = 
-  req.body.tickets !== undefined 
-  ? req.body.tickets : event.tickets;
-
+      const tickets =
+        req.body.tickets !== undefined ? req.body.tickets : event.tickets;
 
       const totalTickets = tickets.reduce(
         (sum, ticket) => sum + ticket.quantity,
         0,
       );
 
-  if (totalTickets !== Number(capacity)) {
-    return res.status(400).json({
-      message: "Total tickets must be equal to capacity"
-    });
-  }
-   }
-   
-   if (req.body.date){
-const eventDate = new Date(req.body.date);
+      if (totalTickets !== Number(capacity)) {
+        return res.status(400).json({
+          message: "Total tickets must be equal to capacity",
+        });
+      }
+    }
 
-if (eventDate < new Date()) {
-  return res.status(400).json({
-    message: "Event date cannot be in the past"
-  });
-}
-   }
+    if (req.body.date) {
+      const eventDate = new Date(req.body.date);
+
+      if (eventDate < new Date()) {
+        return res.status(400).json({
+          message: "Event date cannot be in the past",
+        });
+      }
+    }
 
     const updatedEvent = await Event.findByIdAndUpdate(id, req.body, {
       new: true,
