@@ -261,7 +261,7 @@ export const updateEvent = async (req, res) => {
           message: "Event date cannot be in the past",
         });
       }
-    )}
+    }
 
     const updatedEvent = await Event.findByIdAndUpdate(id, req.body, {
       new: true,
