@@ -46,19 +46,20 @@ export const initializePayment = async (req, res) => {
         
         const { authorization_url, reference } = response.data.data;
 
-        const order = await Order.create({
+       const order = await Order.create({
             guestName,
             guestEmail,
             phoneNo,
             event,
             quantity: Number(quantity),
-            selectedTicket: tickets,
+            ticketType: tickets,
             price: selectedTicket.price,
             totalPrice,
             reference,
             paymentStatus: "pending",
-            ticketId,
-            ticketCode
+            ticketId: ticketDoc._id,
+            ticketCode,
+            user: req.user ? req.user._id : undefined,
         });
 
         return res.status(200).json({
