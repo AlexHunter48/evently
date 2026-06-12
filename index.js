@@ -18,10 +18,11 @@ const app = express();
 
 connectDB();
 
-app.use("/api/webhook", webhookRoutes);
+app.use("/api/webhook", express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(cors());
 
+app.use("/api/webhook", webhookRoutes);
 app.use("/api/auth", authRoute);
 app.use("/api/user", userRoute);
 app.use("/api/events", eventRoute);

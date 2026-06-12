@@ -6,6 +6,6 @@ import verifyWebhook from '../middleware/paystackWebhookMiddleware.js'
 
 const router = express.Router()
 
-router.post('/paystack', express.raw({ type: 'application/json' }), verifyWebhook, handleWebhook)
+router.post('/paystack', verifyWebhook, handleWebhook)
 
 export default router

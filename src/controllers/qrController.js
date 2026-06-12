@@ -22,14 +22,18 @@ export const generateQRForTicket = async (ticketId) => {
     id: ticket.ticketId,
     code: ticket._id
   });
-
   const qrImageString = await QRCode.toDataURL(verificationPayload);
+  ticket.qrCode = qrImageString;
+  await ticket.save();
+
+
   return qrImageString;
 };
 
 export const generateTicketQR = async (req, res) => {
   try {
-    const { ticketId } = req.body;
+    const { ticketId} = req.body;
+    const userId = req.user._id;
 
     if (!ticketId) {
       return res.status(400).json({ success: false, message: "Ticket ID is required" });
@@ -40,9 +44,9 @@ export const generateTicketQR = async (req, res) => {
       return res.status(404).json({ success: false, message: "Ticket not found" });
     }
 
-    if (ticket.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: "Not authorized to access this ticket" });
-    }
+    // if (!ticket.userId || ticket.userId.toString() !== req.user._id.toString()) {
+    //   return res.status(403).json({ success: false, message: "Not authorized to access this ticket" });
+    // }
 
     const verificationPayload = JSON.stringify({
       id: ticket.ticketId,

@@ -104,3 +104,14 @@ export const sendPasswordReset = async (req, res) => {
       });
   }
 };
+
+
+export const sendTicketConfirmationEmail = async (order, qrCodeUrl) => {
+    try {
+        const subject = `Your Evently Ticket is Ready!`
+        const messageText = `Hi ${order.guestName},\n\nPayment confirmed!\n\nTicket Type: ${order.ticketType}\nQuantity: ${order.quantity}\nTotal Paid: ₦${order.totalPrice}\n\nYour QR Code: ${qrCodeUrl}\n\n- Evently Team`
+        await sendEmail(order.guestEmail, subject, messageText)
+    } catch (error) {
+        console.error('Email failed:', error.message)
+    }
+}
