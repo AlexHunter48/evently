@@ -1,6 +1,5 @@
-
 import mongoose from "mongoose";
-import Event from "../models/eventModel.js"
+import Event from "../models/eventModel.js";
 
 import User from "../models/userModel.js";
 
@@ -71,8 +70,7 @@ export const createEvent = async (req, res) => {
 
       if (invalidTicket) {
         return res.status(400).json({
-          message:
-            "All paid events must have valid ticket price and quantity",
+          message: "All paid events must have valid ticket price and quantity",
         });
       }
 
@@ -281,7 +279,7 @@ export const updateEvent = async (req, res) => {
       message: error.message,
     });
   }
-};
+}};
 
 export const deleteEvent = async (req, res) => {
   try {
@@ -338,37 +336,33 @@ export const getOrganizerEvents = async (req, res) => {
   }
 };
 
-
 export const getMyEvents = async (req, res) => {
-try {
-const organizerId = req.user._id;
-const events = await Event.find({organizerId}).sort({ createdAt: -1 });
-res.status(200).json({
-  count: events.length, events
-});
-} catch(error) {
-  res.status(500).json({
-    message: error.message
-  });
-}
-}
-
+  try {
+    const organizerId = req.user._id;
+    const events = await Event.find({ organizerId }).sort({ createdAt: -1 });
+    res.status(200).json({
+      count: events.length,
+      events,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 export const saveEvent = async (req, res) => {
   try {
-
     const userId = req.user._id;
-    const { eventId } = req.params
+    const { eventId } = req.params;
 
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
-      message: "User not found"
+        message: "User not found",
       });
     }
-
-
 
     const event = await Event.findById(eventId);
 
@@ -410,15 +404,12 @@ export const unsaveEvent = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-       message: "User not found"
+        message: "User not found",
       });
     }
-    if (!user.savedEvents.some(
-      id => id.toString() === eventId
-    )) {
-
+    if (!user.savedEvents.some((id) => id.toString() === eventId)) {
       return res.status(404).json({
-message: "Event not found in saved events"
+        message: "Event not found in saved events",
       });
     }
 
@@ -442,25 +433,23 @@ message: "Event not found in saved events"
 
 export const getSavedEvents = async (req, res) => {
   try {
-
-    const userId  = req.user._id;
+    const userId = req.user._id;
 
     const user = await User.findById(userId).populate("savedEvents");
 
     if (!user) {
       return res.status(404).json({
-       message: "User not found"
-      })
+        message: "User not found",
+      });
     }
 
     res.status(200).json({
       message: "Saved events fetched successfully",
       count: user.savedEvents.length,
-      savedEvents: user.savedEvents
-    })
+      savedEvents: user.savedEvents,
+    });
   } catch (error) {
-
-    console.log("Error fetching saved events:", error)
+    console.log("Error fetching saved events:", error);
 
     res.status(500).json({
       message: error.message,

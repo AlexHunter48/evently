@@ -8,6 +8,8 @@ import jwt from "jsonwebtoken";
 
 import User from "../models/userModel.js";
 
+import { sendWelcomeEmail } from "../config/emailConfig.js";
+
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const registerUser = async (req, res) => {
@@ -43,6 +45,15 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
       role: assignedRole,
     });
+
+    try {
+      await sendWelcomeEmail(newUser.email, newUser.username);
+    } catch (mailError) {
+      console.error(
+        "Nodemailer failed to dispatch welcome message:",
+        mailError.message,
+      );
+    }
 
     res.status(201).json({
       message: "Account created succesfully ",
