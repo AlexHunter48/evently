@@ -233,7 +233,7 @@ export const updateEvent = async (req, res) => {
           message: "Event date cannot be in the past",
         });
       }
-    )}
+    }
 
     const updatedEvent = await Event.findByIdAndUpdate(id, req.body, {
       new: true,
@@ -248,7 +248,7 @@ export const updateEvent = async (req, res) => {
     console.log("Error updating event:", error);
     return res.status(500).json({ message: error.message });
   }
-}};
+};
 
 // ==========================================
 // 5. DELETE EVENT
@@ -398,11 +398,5 @@ export const getSavedEvents = async (req, res) => {
   } catch (error) {
     console.log("Error fetching saved events:", error);
 
-    res.status(500).json({
-      message: error.message,
-    });
-  } catch (error) {
-    console.log("Error fetching saved events:", error);
-    return res.status(500).json({ message: error.message });
-  }
-};
+   return res.status(500).json({ message: error.message });
+}};
