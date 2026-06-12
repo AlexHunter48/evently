@@ -51,6 +51,11 @@ const orderSchema = new mongoose.Schema({
         ref: "Ticket",
         required: true
     },
+    // Optional user reference for authenticated purchases
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
     ticketCode: {
         type: String,
         unique: true

@@ -31,6 +31,9 @@ export const createEvent = async (req, res) => {
       return res.status(403).json({ message: "Only organizers can create events" });
     }
 
+    // Free events are allowed without ticket tiers. Paid events must have valid tickets.
+    // The event capacity must match total ticket quantities for paid events.
+
     if (
       !eventType ||
       !organizerId ||
@@ -73,6 +76,7 @@ export const createEvent = async (req, res) => {
     }
 
     const eventDate = new Date(date);
+
     if (eventDate < new Date()) {
       return res.status(400).json({ message: "Event date cannot be in the past" });
     }
@@ -117,13 +121,15 @@ export const getAllEvents = async (req, res) => {
       filter.category = category;
     }
 
-    // Cleaned up duplicate condition logic to safely prioritize regex matching
-    if (location) {
-      filter.location = { $regex: location, $options: "i" };
-    }
-
     if (eventType) {
       filter.eventType = eventType;
+    }
+
+    if (location) {
+      filter.location = {
+        $regex: location,
+        $options: "i",
+      };
     }
 
     const events = await Event.find(filter).sort({ createdAt: -1 });
@@ -146,7 +152,9 @@ export const getSingleEvent = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid event id" });
+      return res.status(400).json({
+        message: "Invalid event id",
+      });
     }
 
     const event = await Event.findById(id);
@@ -155,7 +163,7 @@ export const getSingleEvent = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    return res.status(200).json(event);
+    res.status(200).json(event);
   } catch (error) {
     console.log("Error fetching event:", error);
     return res.status(500).json({ message: error.message });
@@ -197,24 +205,35 @@ export const updateEvent = async (req, res) => {
       return res.status(403).json({ message: "You can only update events you created" });
     }
 
+    // When tickets or capacity are updated, validate the new totals.
     if (req.body.tickets !== undefined || req.body.capacity !== undefined) {
-      const capacity = req.body.capacity !== undefined ? req.body.capacity : event.capacity;
-      const tickets = req.body.tickets !== undefined ? req.body.tickets : event.tickets;
+      const capacity =
+        req.body.capacity !== undefined ? req.body.capacity : event.capacity;
 
-      const totalTickets = tickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+      const tickets =
+        req.body.tickets !== undefined ? req.body.tickets : event.tickets;
+
+      const totalTickets = tickets.reduce(
+        (sum, ticket) => sum + ticket.quantity,
+        0,
+      );
 
       if (totalTickets !== Number(capacity)) {
-        return res.status(400).json({ message: "Total tickets must be equal to capacity" });
+        return res.status(400).json({
+          message: "Total tickets must be equal to capacity",
+        });
       }
     }
 
-    // Fixed: Cleaned up the broken nested loops and bracket blocks here
     if (req.body.date) {
       const eventDate = new Date(req.body.date);
+
       if (eventDate < new Date()) {
-        return res.status(400).json({ message: "Event date cannot be in the past" });
+        return res.status(400).json({
+          message: "Event date cannot be in the past",
+        });
       }
-    }
+    )}
 
     const updatedEvent = await Event.findByIdAndUpdate(id, req.body, {
       new: true,
@@ -229,7 +248,7 @@ export const updateEvent = async (req, res) => {
     console.log("Error updating event:", error);
     return res.status(500).json({ message: error.message });
   }
-};
+}};
 
 // ==========================================
 // 5. DELETE EVENT
@@ -291,9 +310,6 @@ export const getMyEvents = async (req, res) => {
   }
 };
 
-// ==========================================
-// 8. SAVE EVENT
-// ==========================================
 export const saveEvent = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -301,7 +317,9 @@ export const saveEvent = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
 
     const event = await Event.findById(eventId);
@@ -336,11 +354,15 @@ export const unsaveEvent = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
 
     if (!user.savedEvents.some((id) => id.toString() === eventId)) {
-      return res.status(404).json({ message: "Event not found in saved events" });
+      return res.status(404).json({
+        message: "Event not found in saved events",
+      });
     }
 
     user.savedEvents = user.savedEvents.filter((id) => id.toString() !== eventId);
@@ -359,16 +381,25 @@ export const unsaveEvent = async (req, res) => {
 export const getSavedEvents = async (req, res) => {
   try {
     const userId = req.user._id;
+
     const user = await User.findById(userId).populate("savedEvents");
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
 
     return res.status(200).json({
       message: "Saved events fetched successfully",
       count: user.savedEvents.length,
       savedEvents: user.savedEvents,
+    });
+  } catch (error) {
+    console.log("Error fetching saved events:", error);
+
+    res.status(500).json({
+      message: error.message,
     });
   } catch (error) {
     console.log("Error fetching saved events:", error);
