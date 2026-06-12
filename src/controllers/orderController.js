@@ -62,7 +62,7 @@ export const initializePayment = async (req, res) => {
         
         const { authorization_url, reference } = response.data.data;
 
-        const order = await Order.create({
+       const order = await Order.create({
             guestName,
             guestEmail,
             phoneNo,
